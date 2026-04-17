@@ -10,8 +10,8 @@
     --bg: #fafaf8;                /* Warm off-white background */
     --border: #d8d5ce;
     --sidebar-width: 220px;
-    --content-max: 680px;
-    --gap: 3.25rem;
+    --content-max: 710px;
+    --gap: 3rem;
 }
 
 * { margin: 0; padding: 0; box-sizing: border-box; }
