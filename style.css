@@ -110,7 +110,7 @@ a:hover {
 .content-nav a {
     display: inline-block;
     margin-right: 1.25rem;
-    font-size: 0.98rem;
+    font-size: 1.3rem;
     color: var(--text-light);
     border-bottom: none;
     transition: color 0.15s ease;
