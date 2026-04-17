@@ -214,15 +214,6 @@ a:hover {
     margin-bottom: 1.5rem;
 }
 
-.jmp .label {
-    font-size: 0.78rem;
-    font-weight: bold;
-    text-transform: uppercase;
-    letter-spacing: 0.06em;
-    color: var(--link-color);
-    margin-bottom: 0.4rem;
-}
-
 .jmp .paper-title {
     font-size: 1rem;
     line-height: 1.4;
