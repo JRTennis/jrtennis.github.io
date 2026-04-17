@@ -93,37 +93,40 @@ a:hover {
     border-bottom: 1px solid var(--link-color);
 }
 
-/* Sidebar navigation */
-.sidebar nav {
-    border-top: 1px solid var(--border);
-    padding-top: 0.8rem;
-    margin-top: 0.25rem;
-}
-
-.sidebar nav a {
-    display: inline-block;
-    margin-right: 1rem;
-    padding: 0.25rem 0;
-    font-size: 0.92rem;
-    color: var(--text-light);
-    border-bottom: none;
-    transition: color 0.15s ease;
-}
-
-.sidebar nav a:hover {
-    color: var(--link-color);
-}
-
-.sidebar nav a.active {
-    color: var(--text-color);
-    font-weight: bold;
-}
-
 /* ─── Main content ─── */
 .content {
     flex: 1;
     max-width: var(--content-max);
     min-width: 0;
+}
+
+/* ─── Content navigation ─── */
+.content-nav {
+    border-bottom: 1px solid var(--border);
+    padding-bottom: 0.8rem;
+    margin-bottom: 1.5rem;
+}
+
+.content-nav a {
+    display: inline-block;
+    margin-right: 1.25rem;
+    font-size: 0.98rem;
+    color: var(--text-light);
+    border-bottom: none;
+    transition: color 0.15s ease;
+}
+
+.content-nav a:hover {
+    color: var(--link-color);
+}
+
+.content-nav a.active {
+    color: var(--text-color);
+    font-weight: bold;
+}
+
+.content-nav a:last-child {
+    margin-right: 0;
 }
 
 /* ─── Section headings ─── */
@@ -259,7 +262,7 @@ a:hover {
         min-width: 200px;
     }
 
-    .sidebar nav {
+    .content-nav {
         width: 100%;
         display: flex;
         gap: 1rem;
@@ -267,9 +270,11 @@ a:hover {
         border-top: 1px solid var(--border);
         border-bottom: 1px solid var(--border);
         padding: 0.5rem 0;
+        margin-bottom: 1rem;
     }
 
-    .sidebar nav a {
+    .content-nav a {
         display: inline;
+        margin-right: 0;
     }
 }
