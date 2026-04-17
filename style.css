@@ -165,6 +165,7 @@ a:hover {
     font-size: 0.9rem;
     color: var(--text-light);
     margin-top: 0.1rem;
+    margin-bottom: 0.4rem;
 }
 
 .paper .venue {
@@ -205,6 +206,14 @@ a:hover {
     color: var(--text-light);
     margin: 0.55rem 0;
     line-height: 1.65;
+}
+
+.jmp .links a {
+    margin-right: 0.65rem;
+}
+
+.jmp .links a:last-child {
+    margin-right: 0;
 }
 
 /* ─── Teaching ─── */
