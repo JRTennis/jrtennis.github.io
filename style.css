@@ -159,14 +159,6 @@ a:hover {
     margin-bottom: 0;
 }
 
-/* ─── Nicer line breaks in paragraphs/abstracts ─── */
-.intro p,
-.paper .abstract,
-.jmp .abstract {
-    text-wrap: pretty;
-    hyphens: auto;
-}
-
 /* ─── Papers ─── */
 .paper {
     margin-bottom: 1.6rem;
