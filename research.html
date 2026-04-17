@@ -116,16 +116,13 @@ most positions were paid near their model-implied optima with a few significant 
             <div class="coauthors">with Nicolas Legrand</div>
             <p class="abstract">
                 <!-- CUSTOMIZE: Paste your actual abstract here -->
-                In accordance with the economics literature on dynamic contests, we use a broad dataset of
-professional tennis matches played on all surfaces from 2014–2017 to test the null hypothesis
-that points are independent and identically distributed (iid). We generally find that winning
-the previous point does not significantly increase the server’s odds of winning the current
-point (that is, we cannot reject independence via a momentum, or “hot hand,” effect), servers
-struggle on “important” points (that is, we reject identical distribution), and in most cases,
-higher player quality does not mitigate these effects. We believe that the discrepancy between
-our results and a seminal study using data from 1992–1995 Wimbledon is likely because the
-courts there were unusually fast. We also use a newer estimation method called the splitpanel jackknife. Like earlier methods, it provides consistent estimates for dynamic binary
-panel data. However, it can estimate probit and logit models as well as linear probability.
+                Do outcomes in sequential contests exhibit dynamic dependence? We study this question using point-level data from modern professional tennis and assess how well Klaassen and Magnus’s (2001) iterated feasible generalized least squares (FGLS) estimator performs on dynamic panels. Using data from 1,336 men and women’s clay, grass, and hard-court matches
+from 2014 to 2017, we reject independence and identical distribution at the 1% level. However, our estimated hot hand effect is smaller than KM’s and insignificant for men, and the
+receiver’s estimated advantage on important points is also smaller. We then compare FGLS to
+several dynamic panel estimators, including GMM and bias-corrected fixed effects (BCFE),
+and show that FGLS estimates are comparable to BCFE and consistently lie between OLS
+and uncorrected FE. Given FGLS’s computational speed and ability to handle predetermined
+and time-invariant covariates, we recommend it for applied work with dynamic panel data.
             </p>
         </div>
 
