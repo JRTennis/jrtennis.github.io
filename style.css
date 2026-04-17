@@ -3,8 +3,8 @@
  * Change these variables to adjust colors and layout across all pages.
  */
 :root {
-    --link-color: #041E42;        /* Georgetown navy */
-    --link-hover: #1a3a5c;        /* Lighter navy on hover */
+    --link-color: #003DA5;        /* Georgetown navy */
+    --link-hover: #003DA5;        /* Lighter navy on hover */
     --text-color: #1a1a1a;
     --text-light: #3d3d3d;
     --text-muted: #5a5a5a;
