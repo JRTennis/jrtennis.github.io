@@ -3,8 +3,8 @@
  * Change these variables to adjust colors and layout across all pages.
  */
 :root {
-    --link-color: #003DA5;        /* Georgetown navy */
-    --link-hover: #003DA5;        /* Lighter navy on hover */
+    --link-color: #003DA5;        /* Georgetown Pantone 293 */
+    --link-hover: #003DA5;        
     --text-color: #1a1a1a;
     --text-light: #3d3d3d;
     --text-muted: #5a5a5a;
@@ -101,7 +101,8 @@ a:hover {
 }
 
 .sidebar nav a {
-    display: block;
+    display: inline-block;
+    margin-right: 1rem;
     padding: 0.25rem 0;
     font-size: 0.92rem;
     color: var(--text-light);
@@ -186,7 +187,7 @@ a:hover {
 
 /* ─── JMP highlight ─── */
 .jmp {
-    background: #D6D2C4;
+    background: #D6D2C4; /* Georgetown Pantone 7527 */
     border: 1px solid var(--border);
     padding: 1.1rem 1.25rem;
     margin-bottom: 1.25rem;
