@@ -1,0 +1,3506 @@
+\PassOptionsToPackage{dvipsnames}{xcolor}
+\documentclass[12pt, aspectratio=169]{beamer}
+\usepackage[utf8]{inputenc}
+\usepackage{dsfont,amssymb}
+\usepackage[normalem]{ulem}
+\usepackage{verbatim}
+\usepackage{soul}
+\definecolor{trueyellow}{rgb}{1,1,0}
+\sethlcolor{trueyellow}
+\usepackage{colortbl}
+\usepackage{booktabs}
+\usepackage{adjustbox}
+\usepackage{hyperref}
+\usepackage{caption}
+\usepackage{pgfplots}
+\pgfplotsset{compat=1.18}
+\usepgfplotslibrary{groupplots}
+\usepackage[backend=bibtex,style=authoryear,natbib,giveninits=true,maxcitenames=99,maxbibnames=99]{biblatex}
+\addbibresource{references.bib}
+\newcommand{\scripttiny}{\fontsize{7pt}{8pt}\selectfont}
+
+\DeclareCiteCommand{\cite}
+  {\usebibmacro{prenote}}
+  {\printnames{labelname} \bibhyperref{\printfield{year}}}
+  {\multicitedelim}
+  {\usebibmacro{postnote}}
+
+\DeclareCiteCommand{\citep}
+  {\usebibmacro{prenote}}
+  {(\printnames{labelname} \bibhyperref{\printfield{year}})}
+  {\multicitedelim}
+  {\usebibmacro{postnote}}
+
+\DeclareCiteCommand{\citeyear}
+  {\usebibmacro{prenote}}
+  {\bibhyperref{\printfield{year}}}
+  {\multicitedelim}
+  {\usebibmacro{postnote}}
+
+\DeclareCiteCommand{\citeyearp}
+  {\usebibmacro{prenote}}
+  {(\bibhyperref{\printfield{year}})}
+  {\multicitedelim}
+  {\usebibmacro{postnote}}
+
+\renewcommand{\finalnamedelim}{\addspace\&\space}
+\renewcommand{\multicitedelim}{\addcomma\space}
+
+\makeatletter
+\let\HL\hl
+\renewcommand\hl{%
+  \let\set@color\beamerorig@set@color
+  \let\reset@color\beamerorig@reset@color
+  \HL}
+\makeatother
+\newcommand{\indep}{\perp \!\!\! \perp}
+
+\newcommand{\highlight}[1]{%
+  \colorbox{trueyellow}{$\displaystyle#1$}}
+\newcommand{\backupbegin}{
+   \newcounter{finalframe}
+   \setcounter{finalframe}{\value{framenumber}}
+}
+\newcommand{\backupend}{
+   \setcounter{framenumber}{\value{finalframe}}
+}
+\setbeamertemplate{theorems}[numbered]
+\setbeamertemplate{caption}[numbered]
+\setlength\belowcaptionskip{-5pt}
+
+%\hfill \hyperlink{label}{\beamerskipbutton{Label}}
+
+\usetheme{Madrid}
+\usecolortheme{default}
+
+% match slide-number font color with frametitle color
+\setbeamercolor{page number in head/foot}{
+  use=frametitle,
+  bg=white,
+  fg=frametitle.bg
+}
+
+% remove navigation icons
+\setbeamertemplate{navigation symbols}{}
+
+% minimal footline: only slide number (right-aligned)
+\setbeamertemplate{footline}{%
+  \leavevmode%
+  \begin{beamercolorbox}[wd=\paperwidth,ht=2.5ex,dp=1.5ex,right]{page number in head/foot}%
+    \insertframenumber{} / \inserttotalframenumber\hspace*{2ex}
+  \end{beamercolorbox}%
+}
+
+%\setbeamerfont{institute}{size=\normalsize}
+\title[]{Optimal Dynamic Selection Under Costly Evaluation: \\ Evidence from Graduate Admissions}
+\author[]{Jeremy Rosen}
+\institute[]{Georgetown University}
+\date[]{\today}
+
+\newcommand{\sym}[1]{#1}
+%\setbeamercolor{button}{bg=cyan,fg=white}
+\begin{document}
+\begin{frame}[plain,noframenumbering]
+\titlepage
+\end{frame}
+
+\begin{frame}[label=m]
+\frametitle{Motivation}
+\begin{itemize}
+\item \textbf{Economic Problem:}\ Selecting best options under costly evaluation
+\vspace{5pt}
+\begin{itemize}
+\item Determining each option's true quality costs decision-maker time and effort
+\vspace{5pt}
+\item Low-cost screening of all options $\Rightarrow$ high-cost evaluation of surviving options
+\vspace{5pt}
+\item \textbf{Examples:}\ Admissions and hiring, clinical trials, matching platforms
+\vspace{10pt}
+\end{itemize}
+\item \textbf{Why Graduate Admissions:}\ Benefits graduate programs and future applicants
+\vspace{5pt}
+\begin{itemize}
+\item Graduate programs invest time and money into students' development
+\vspace{5pt}
+\item If programs were undervaluing applicants with certain characteristics, \\ future such applicants may receive formerly-withheld opportunities
+\end{itemize}
+\end{itemize}
+\end{frame}
+
+\begin{frame}[label=rq]
+\frametitle{Research Questions}
+\begin{enumerate}
+\item Which factors in applications affect admission and success in graduate school?
+\vspace{5pt}
+\begin{itemize}
+\item Literature measures success with program completion and job placement ranking
+\vspace{10pt}
+\end{itemize}
+\item Are admissions committees optimizing, or are they making mistakes?
+\vspace{5pt}
+\begin{itemize}
+\item Goal is to accept applicants with highest success probabilities who will matriculate
+\vspace{5pt}
+\item Predictors of admission only (success only) may be overvalued (undervalued)
+\vspace{10pt}
+\end{itemize}
+\item If they are making mistakes, how can they make better admissions decisions?
+\vspace{5pt}
+\begin{itemize}
+\item In turn, by changing decision rules, how much better of a cohort can they admit?
+\vspace{10pt}
+\end{itemize}
+\item[$\bigstar$] This paper's methods generalize to admissions, hiring, and other settings
+\end{enumerate}
+\end{frame}
+
+\begin{frame}[label=mmr]
+\frametitle{Methodology and Main Results}
+\begin{itemize}
+\item Build models of admissions committee's decision problem that support:
+\vspace{5pt}
+\begin{itemize}
+\item Statistical tests of whether committee's decision rule aligns with desired objective
+\vspace{5pt}
+\item Counterfactual simulations quantifying gains from deviating to model's decision rule
+\vspace{10pt}
+\end{itemize}
+\item Estimate models with admissions data from a major research university
+\vspace{5pt}
+\begin{itemize}
+\item Do estimated success probabilities align with those implied by committee's decisions?\!\!\!\!
+\vspace{5pt}
+\item Tests reject optimality and counterfactual deviation gains statistically significant when committee misvalues applicant characteristics, but not when it optimizes
+\end{itemize}
+\end{itemize}
+\end{frame}
+
+\section*{Literature Review}
+\begin{frame}[label=lr]
+\frametitle{Literature Review}
+\begin{itemize}
+\item \textbf{Graduate Admissions:}\ Regress acceptance and success on applicant charateristics\!
+\vspace{5pt}
+\begin{itemize}
+\item \textbf{Original Literature:}\ \citet{attiyeh1997}; \citet{krueger2000}; \\ \citet{grovewu2007}; \citet{athey2007}
+\vspace{5pt}
+\item \textbf{Study of 2002 Cohort:}\ \citeauthor{stock2006} (\citeyear{stock2006}--\citeyear{stock2015})
+\vspace{5pt}
+\item \textbf{New Predictors/Methods:}\ \citet{bai2022}
+\vspace{10pt}
+\end{itemize}
+\item \textbf{Optimal Dynamic Selection Under Costly Evaluation:}
+\vspace{5pt}
+\begin{itemize}
+\item \textbf{Sequential Search:}\ \citet{mccall1970}; \citet{mortensen1970}; \citet{weitzman1979}
+\vspace{5pt}
+\item \textbf{Rational Inattention:}\ \citet{sims2003}; \citet{matejka2015}; \citet{caplin2015}\!\!\!\!\!\!\!
+\vspace{10pt}
+\end{itemize}
+\item[$\bigstar$] \textbf{This Paper:}\ Builds and estimates dynamic selection models of admissions, \\ which test optimality by relating acceptance effects to success effects
+\end{itemize}
+\end{frame}
+
+\begin{frame}[label=sdp]
+\frametitle{Synthetic Data Protocol (IRB-Approved)}
+\begin{enumerate}
+\item \textbf{Administrative office receives data from university departments}
+\vspace{5pt}
+\begin{itemize}
+\item Algorithmically extracts variables from textual files, such as recommendation letters
+\vspace{10pt}
+\end{itemize}
+\item \textbf{Synthetic data (Patki et al.\ \citeyear{patki2016}) used for model development}
+\vspace{5pt}
+\begin{itemize}
+\item Estimate joint distribution of variables, and simulate synthetic dataset from it
+\vspace{5pt}
+\item Rows do not correspond to real subjects, preventing identity disclosure
+\vspace{5pt}
+\item Cells with $<5$ comparable observations binned to prevent attribute disclosure
+\vspace{10pt}
+\end{itemize}
+\item \textbf{Administrative office executes final estimation code on actual data}
+\vspace{5pt}
+\begin{itemize}
+\item Only summary statistics and parameter estimates are returned to researcher
+\vspace{10pt}
+\end{itemize}
+\item[$\bigstar$] \textbf{Contribution:}\ Privacy-protecting framework for researchers studying sensitive data\!
+\vspace{10pt}
+\end{enumerate}
+\hyperlink{sde}{\beamerskipbutton{Synthetic Data Example}}
+\end{frame}
+
+\begin{frame}
+\frametitle{Outline}
+\tableofcontents
+\end{frame}
+
+\section{Reduced-Form Analysis}
+\addtocounter{framenumber}{-1}
+\begin{frame}[label=dd]
+\frametitle{Data Description}
+\begin{itemize}
+\item \textbf{Sample:}\ Applicants to research university's economics, government, history, linguistics, and psychology PhD programs from 2015 to 2023
+\vspace{10pt}
+\item \textbf{Dependent Variables:}\ Measures of admission and success
+\vspace{5pt}
+\begin{itemize}
+\item \textbf{Admission:}\ Indicators for all stages of admissions process, including waitlist
+\vspace{5pt}
+\item \textbf{Success:}\ Completion and placement category/quality for \textbf{all} applicants, with academia-equivalent rankings for non-academic placements \citep{krueger2000}\!\!
+\vspace{10pt}
+\end{itemize}
+\item \textbf{Independent Variables:}\ Objective vs.\ subjective
+\vspace{5pt}
+\begin{itemize}
+\item \textbf{Objective:}\ Demographics and performance measures, such as GRE scores
+\vspace{5pt}
+\item \textbf{Subjective:}\ Textual processing of recommendation letters, application essays, \\ CVs, and supplemental forms using dictionaries to construct variables 
+\vspace{10pt}
+\end{itemize}
+\end{itemize}
+\hyperlink{dv}{\beamerskipbutton{Variables}}
+\hyperlink{ivp}{\beamerskipbutton{Inference vs.\ Prediction}}
+\hyperlink{sas}{\beamerskipbutton{Sample Selection}}
+\end{frame}
+
+
+\begin{frame}[label=rfs]
+\frametitle{Reduced-Form Summary}
+\begin{itemize}
+\item \textbf{Data:}\ All applicants to all 5 graduate programs from 2020 to 2023
+\vspace{5pt}
+\begin{itemize}
+\item Currently have results for acceptance and objective variables only
+\vspace{5pt}
+\item Implementing synthetic data protocol to complete the empirical work
+\vspace{10pt}
+\end{itemize}
+\item \textbf{Method:}\ Logistic regressions with lasso for variable selection
+\vspace{10pt}
+\item \textbf{Results:}\ Economics admissions cares most about quantitative GRE and undergraduate GPA, and is most data-driven based on goodness of fit 
+\vspace{5pt}
+\begin{itemize}
+\item Need success data to see if other programs are making mistakes
+\vspace{5pt}
+\item Prolific recommenders increase acceptance probability $\Rightarrow$ network effects
+\vspace{10pt}
+\end{itemize}
+\end{itemize}
+\hyperlink{mbp}{\beamerskipbutton{Summary Statistics}}
+\hyperlink{emm}{\beamerskipbutton{Summary Statistics (Matriculation)}}
+\end{frame}
+
+\begin{frame}[label=pllra]
+\frametitle{Post-Lasso AMEs:\ Predicting Acceptance}
+\begin{table}[htbp]
+\begin{center}
+\begin{adjustbox}{totalheight=.8\textheight}
+\resizebox*{!}{\dimexpr\textheight-3.5\baselineskip\relax}{
+\input{tables/Post-Lasso Logistic Regression AMEs Presentation 1}}
+\end{adjustbox}
+\end{center}
+\end{table}
+\hyperlink{fpllra}{\beamerskipbutton{Full Post-Lasso AMEs}}
+\hyperlink{lra}{\beamerskipbutton{Logistic Regression AMEs}}
+\hyperlink{lrrm}{\beamerskipbutton{Logistic Regression Results (Matriculation)}}
+\end{frame}
+
+\begin{frame}[label=avsa]
+\frametitle{Acceptance vs.\ Success AMEs}
+\begin{minipage}[t]{0.45\textwidth}
+\centering
+\vspace{-75pt}
+\makebox[\linewidth]{
+\begin{adjustbox}{width=\textwidth}
+\input{tables/Post-Lasso Logistic Regression AMEs Presentation 2}
+\end{adjustbox}
+}
+\end{minipage}%
+\hfill
+\begin{minipage}[c][0.8\textheight][c]{0.55\textwidth}
+\begin{itemize}
+\item Admissions literature regresses acceptance and success on variables in applications, and qualitatively compares the effects
+\vspace{5pt}
+\item While such comparisons are of interest, they are insufficient to test optimality
+\vspace{5pt}
+\item Need model of admissions to relate acceptance effects to success effects
+\vspace{5pt}
+\item[] \hyperlink{ioca}{\beamerskipbutton{Insufficiency of Comparing AMEs}}
+\end{itemize}
+\end{minipage}
+\end{frame}
+
+\AtBeginSection[]
+{
+  \begin{frame}
+    \frametitle{Outline}
+    \tableofcontents[currentsection]
+  \end{frame}
+}
+
+\section{Structural Models}
+\addtocounter{framenumber}{-1}
+\begin{frame}[label=wma]
+\frametitle{Why Model Admissions?}
+\begin{itemize}
+\item \textbf{Reason 1:}\ Test whether committee's decision rule aligns with desired objective
+\vspace{10pt}
+\begin{itemize}
+\item Per literature, committee should accept applicants with highest success probabilities
+\vspace{10pt}
+\item Committees also accept applicants with higher matriculation probabilities
+\vspace{20pt}
+\end{itemize}
+\item \textbf{Reason 2:}\ Find counterfactual decision rule in which committee optimizes
+\vspace{10pt}
+\begin{itemize}
+\item Quantify gains from deviating from actual to counterfactual decision rule
+\end{itemize}
+\end{itemize}
+\end{frame}
+
+\begin{frame}[label=mf]
+\frametitle{Model Framework}
+\begin{itemize}
+\item \textbf{Portfolio Choice Problem:}\ Accept subset of applicants with highest sum of success probabilities subject to capacity constraint on number of acceptances
+\only<1>{
+\vspace{10pt}
+\item For each applicant $n\in\{1,\dots,N\}$, make decision $d_n\in\{\text{Accept},\text{Reject}\}$ given:
+}
+\end{itemize}
+\begin{equation*}
+\max_{(d_1,\dots,d_N)\in\{A,R\}^N} \sum_{n=1}^N\underbrace{P(y_n=S|x_n,z_n)}_{\text{Success probability}}\underbrace{\mathds1(d_n=A)}_{\text{Acceptance}}, \: \text{such that:} \: \sum_{n=1}^N\underbrace{\mathds1(d_n=A)}_{\text{Acceptance}}\leq N_A\only<1>{,}
+\end{equation*}
+\only<1>{\noindent
+\begin{itemize}
+\item[] where $x=$ objective variables, $z=$ subjective variables, $y\in\{\text{Success},\text{Failure}\}$, $N=$ number of applicants, and $N_A=$ maximum number of acceptances
+\vspace{10pt}
+\end{itemize}
+}
+\only<2->{\noindent
+\begin{itemize}
+\item BEMS \citeyearp{bai2022} prove that portfolio choice problem reduces to cutoff rule problem
+\vspace{5pt}
+\begin{itemize}
+\item Accept applicant if and only if their success probability exceeds cutoff probability
+\vspace{5pt}
+\item Decisions across applicants now independent, so no need to consider all subsets
+\vspace{10pt}
+\end{itemize}
+\end{itemize}
+\hyperlink{pctcr}{\beamerskipbutton{Portfolio Choice to Cutoff Rule}}
+}
+\end{frame}
+
+\begin{frame}[label=crp]
+\frametitle{Cutoff Rule Problem}
+\begin{itemize}
+\item Start with two-round cutoff rule problem that accounts for costly evaluation:
+\vspace{5pt}
+\begin{itemize}
+\item \textbf{Round 1:}\ See only objective variables (e.g.\ GRE). Can transition application file to Round 2 to see subjective variables (e.g.\ recommendation letters), or can reject
+\vspace{5pt}
+\item \textbf{Round 2:}\ If chose to transition application file in Round 1, can accept or reject
+\vspace{5pt}
+\item Assume for now committee transitions and accepts optimal number of files
+\vspace{10pt}
+\end{itemize}
+\item Along with the baseline dynamic model, there are two additional models
+\vspace{5pt}
+\begin{itemize}
+\item Static model makes it possible to compare cutoff probabilities across rounds
+\vspace{5pt}
+\item Waitlist model adds a third round and accounts for matriculation probabilities
+\vspace{10pt}
+\end{itemize}
+\end{itemize}
+\hyperlink{moa}{\beamerskipbutton{Models of Admissions}}
+\end{frame}
+
+\begin{frame}[label=dg]
+\frametitle{Decision Graph}
+\begin{figure}
+\centering
+\vspace{-5pt}
+\includegraphics[totalheight=.9\textheight]{figures/Decision Graph}
+\vspace{-15pt}
+\end{figure}
+\end{frame}
+
+\begin{frame}[label=ydm1]
+\frametitle{Dynamic Model}
+\begin{itemize}
+\item \textbf{States:}\ $r=$ round, $x=$ objective variables, $z=$ subjective variables, $t=$ year, \\ $\epsilon_r=$ Type 1 extreme value preference shock with scale parameter $\sigma$
+\vspace{5pt}
+\item \textbf{Controls:}\ $d_1\in{\{\text{Transition},\text{Reject}\}}$, $d_2\in{\{\text{Accept},\text{Reject}\}}$
+\vspace{5pt}
+\item \textbf{Outcomes:}\ $y\in{\{\text{Success},\text{Failure}\}}$, $y_r^*=$ marginal outcome
+\vspace{10pt}
+\end{itemize}
+\only<2->{\noindent
+\textbf{Round 2:}
+\begin{equation*}
+v_2(x,z,t,\epsilon_2) = \max_{d_2\in\{A,R\}}u_2(x,z,t,d_2)+\epsilon_2(d_2), \: \text{such that:}
+\end{equation*}
+\begin{equation*}
+u_2(x,z,t,d_2) = \underbrace{P(y=S|x,z)\mathds{1}(d_2=A)}_{\text{If accept, get $P(\text{Success})$}}+\underbrace{P(y_2^*=S|t)\mathds{1}(d_2=R)}_{\text{If reject, get $P(\text{Cutoff})$}}
+\end{equation*}
+}
+\hyperlink{ydp}{\beamerskipbutton{Dynamic Parameterization}}
+\end{frame}
+
+\addtocounter{framenumber}{-1}
+\begin{frame}[label=ydm2]
+\frametitle{Dynamic Model}
+\textbf{Round 1:}
+\begin{equation*}
+v_1(x,t,\epsilon_1) = \max_{d_1\in\{T,R\}}u_1(x,t,d_1)+\epsilon_1(d_1), \: \text{such that:}
+\end{equation*}
+\begin{equation*}
+u_1(x,t,d_1) = \underbrace{\mathbb{E}[v_2(x,z,t,\epsilon_2)|x,t]\mathds{1}(d_1=T)}_{\text{If transition, get $\mathbb E[\text{Social Surplus}]$}}+\underbrace{L(y_1^*=S|t)\mathds{1}(d_1=R)}_{\text{If reject, get $L(\text{Cutoff})$}}, \: \text{such that:}
+\end{equation*}
+\begin{equation*}
+\mathbb{E}[v_2(x,z,t,\epsilon_2)|x,t] = \int_{\widetilde z}\sigma\log\Big(e^{P(y=S|x,\widetilde z)/\sigma}+e^{P(y_2^*=S|t)/\sigma}\Big)dF(\widetilde z|x)
+\end{equation*}
+\only<2->{\noindent
+\textbf{Conditional Choice Probabilities:}
+\begin{equation*}
+P(d_r|x,(z),t) = \frac{\exp(u_r(x,(z),t,d_r)/\sigma)}{\sum_{\widetilde{d_r}\in D_r}\exp(u_r(x,(z),t,\widetilde{d_r})/\sigma)}
+\end{equation*}
+}
+\hyperlink{ydp}{\beamerskipbutton{Dynamic Parameterization}}
+\end{frame}
+
+\begin{frame}[label=ysm]
+\frametitle{Static Model}
+\begin{itemize}
+\item \textbf{Goal:}\ Make Round 1 cutoff a probability bounded between 0 and 1
+\vspace{5pt}
+\end{itemize}
+\only<2->{\noindent
+\textbf{Round 2:}
+\begin{equation*}
+v_2(x,z,t,\epsilon_2) = \max_{d_2\in\{A,R\}}u_2(x,z,t,d_2)+\epsilon_2(d_2), \: \text{such that:}
+\end{equation*}
+\begin{equation*}
+u_2(x,z,t,d_2) = \underbrace{P(y=S|x,z)\mathds{1}(d_2=A)}_{\text{If accept, get $P(\text{Success})$}}+\underbrace{P(y_2^*=S|t)\mathds{1}(d_2=R)}_{\text{If reject, get $P(\text{Cutoff})$}}
+\end{equation*}
+}
+\only<3->{\noindent
+\textbf{Round 1:}
+\begin{equation*}
+v_1(x,t,\epsilon_1) = \max_{d_1\in\{T,R\}}u_1(x,t,d_1)+\epsilon_1(d_1), \: \text{such that:}
+\end{equation*}
+\begin{equation*}
+u_1(x,t,d_1) = \underbrace{P(y=S|x)\mathds{1}(d_1=T)}_{\text{If transition, get $P(\text{Success})$}}+\underbrace{P(y_1^*=S|t)\mathds{1}(d_1=R)}_{\text{If reject, get $P(\text{Cutoff})$}}
+\end{equation*}
+\vspace{2.5pt}
+}
+\only<4->{\noindent
+\begin{itemize}
+\item $P(y=S|x)$ estimates inconsistent, but fitted values account for $x$'s effect on $z$
+\vspace{5pt}
+\end{itemize}
+}
+\hyperlink{ysp}{\beamerskipbutton{Static Parameterization}}
+\end{frame}
+
+\begin{frame}[label=pcwm]
+\frametitle{Portfolio Choice with Matriculation}
+\begin{itemize}
+\item Accept subset of applicants with highest sum of success times matriculation probabilities subject to capacity constraint on expected number of matriculants
+\only<1>{
+\vspace{10pt}
+\item For each applicant $n\in\{1,\dots,N\}$, make decision $d_n\in\{\text{Accept},\text{Reject}\}$ given:
+}
+\end{itemize}
+\begin{equation*}
+\max_{(d_1,\dots,d_N)\in\{A,R\}^N} \sum_{n=1}^N\underbrace{P(y_n=S|x_n,z_n)}_{\text{Success probability}}\underbrace{P(m_n=M|x_n,z_n)}_{\text{Matriculation probability}}\underbrace{\mathds1(d_n=A)}_{\text{Acceptance}},
+\end{equation*}
+\begin{equation*}
+\text{such that:} \: \sum_{n=1}^N\underbrace{P(m_n=M|x_n,z_n)}_{\text{Matriculation probability}}\underbrace{\mathds1(d_n=A)}_{\text{Acceptance}}\leq N_M\only<1>{,}
+\end{equation*}
+\only<1>{\noindent
+\begin{itemize}
+\item[] where $(x,z)=$ variables, $y\in\{\text{Success},\text{Failure}\}$, $m\in\{\text{Matriculate},\text{Decline}\}$, \\ $N=$ number of applicants, and $N_M=$ maximum number of matriculants
+\vspace{10pt}
+\end{itemize}
+}
+\only<2->{\noindent
+\begin{itemize}
+\item For large $N$, this problem reduces to cutoff rule problem on \textbf{success} probabilities
+\vspace{5pt}
+\begin{itemize}
+\item Likely matriculants more valuable, but also more expensive $\Rightarrow$ effects cancel
+\vspace{5pt}
+\item \textbf{Upshot:}\ Matriculation probabilities only matter if there are dynamic effects
+\vspace{10pt}
+\end{itemize}
+\end{itemize}
+\hyperlink{crwm}{\beamerskipbutton{Cutoff Rule with Matriculation}}
+}
+\end{frame}
+
+\begin{frame}[label=wmo]
+\frametitle{Waitlist Model}
+\begin{minipage}[t]{0.5\textwidth}
+\centering
+\begin{figure}
+\centering
+\vspace{-95pt}
+\hspace*{-15pt}\includegraphics[totalheight=.85\textheight]{figures/Decision Graph Waitlist}
+\end{figure}
+\end{minipage}%
+\hfill
+\begin{minipage}[c][0.8\textheight][c]{0.5\textwidth}
+\vspace{20pt}
+\begin{itemize}
+\item Three-round model features waitlist and accounts for applicants' decisions
+\vspace{5pt}
+\item Equations analogous to those in baseline two-round dynamic model
+\vspace{5pt}
+\item Dynamic mechanism incentivizes giving early acceptances to likely matriculants\!
+\vspace{5pt}
+\item[] \hyperlink{wm1}{\beamerskipbutton{Waitlist Equations}}
+\end{itemize}
+\end{minipage}
+\end{frame}
+
+\begin{frame}[label=wme]
+\frametitle{Waitlist Memory}
+\begin{itemize}
+\item Respecify Round 3 cutoff $P(y_3^*=S|t)$, where $t=$ year, as $P(y_3^*=S|\overline{m_{2A}})$
+\vspace{5pt}
+\begin{itemize}
+\item $\overline{m_{2A}}=$ average early accepted applicant's matriculation probability based on $(x,z)$
+\vspace{5pt}
+\item Enthusiasm variables can affect matriculation independently of success
+\vspace{5pt}
+\item $P(y_3^*=S|\overline{m_{2A}})$ increases in $\overline{m_{2A}}$ because larger $\overline{m_{2A}}$ means fewer openings
+\vspace{10pt}
+\end{itemize}
+\item What information available at start of Round 2 determines $\overline{m_{2A}}$?
+\vspace{5pt}
+\begin{itemize}
+\item For all transitioned applicants, $\ddot{m_2}$. $\ddot{m_2}$ is defined as $\overline{m_2}^t$ with $m_2$ excluded, where $m_2=$ applicant's own matriculation probability. Within $t$, low $m_2$ implies high $\ddot{m_2}$
+\vspace{5pt}
+\item Estimate $f_{{\overline{m_{2A}}|\ddot{m_2}}}$ on all transitioned applicants; slope parameter's expected sign is positive provided there is variation in $\overline{m_2}^t$ across years (e.g.\ due to Covid)
+\vspace{10pt}
+\end{itemize}
+\end{itemize}
+\hyperlink{wm1}{\beamerskipbutton{Waitlist Model}} \hyperlink{wn}{\beamerskipbutton{Waitlist Notes}}
+\end{frame}
+
+\begin{frame}[label=wd]
+\frametitle{Waitlist Dynamics}
+\begin{theorem}[\href{https://jeremyarosen.com/papers/grad_admissions_proofs.pdf}{\underline{Proof}}]
+Success probability equal, an applicant's Round 2 acceptance probability is strictly increasing in their matriculation probability.
+\end{theorem}
+\vspace{10pt}
+\begin{itemize}
+\item Compared to high $m_2$ applicant, low $m_2$ applicant has high $\ddot{m_2}$, and therefore high $\overline{F}_{\overline{m_{2A}}|\ddot{m_2}}$, $\mathbb{E}[P(\text{Cutoff})_3]$, and $\mathbb{E}[v_3]$. This increases relative payoff of waitlisting them\!
+\vspace{10pt}
+\item $\mathbb{E}[v_3]$ discounted so payoff from acceptance in Round 3 less than in Round 2
+\vspace{5pt}
+\begin{itemize}
+\item Captures chance of losing applicant to another university between rounds
+\vspace{5pt}
+\item If committee is more selective in Round 2, discount factor is closer to 1
+\vspace{10pt}
+\end{itemize}
+\item[$\bigstar$] \textbf{Upshot:}\ Accepting applicants who want to matriculate benefits the program
+\vspace{10pt}
+\end{itemize}
+\hyperlink{wm1}{\beamerskipbutton{Waitlist Model}} \hyperlink{wn}{\beamerskipbutton{Waitlist Notes}}
+\end{frame}
+
+\AtBeginSection[]
+{
+  \begin{frame}
+    \frametitle{Outline}
+    \tableofcontents[currentsection]
+  \end{frame}
+}
+
+\section{Structural Estimation}
+\addtocounter{framenumber}{-1}
+\begin{frame}[label=mle]
+\frametitle{Maximum Likelihood Estimation}
+\begin{multline*}
+\mathcal{L}_N^U\big(\theta\big) = \prod_{n=1}^{N_T}\underbrace{f(z_n|x_n;\theta_F)}_{\text{Density of $z|x$}}\underbrace{P_{d_{1,n}}(\theta_T)P_{d_{2,n}}(\theta_A)^{\mathds{1}(d_{2,n}=A)}(1-P_{d_{2,n}}(\theta_A))^{\mathds{1}(d_{2,n}=R)}}_{\text{Conditional choice probabilities}} \\
+\underbrace{P_{y_n}(\theta_S)^{\mathds{1}(y_n=S)}(1-P_{y_n}(\theta_S))^{\mathds{1}(y_n=F)}}_{\text{Outcome probabilities}}\prod_{n=N_T+1}^N\underbrace{f(z_n|x_n;\theta_F)}_{\text{Density of $z|x$}}\underbrace{(1-P_{d_{1,n}}(\theta_T))}_{\text{Conditional choice probability}}
+\end{multline*}
+\begin{itemize}
+\item In unrestricted likelihood $\mathcal{L}^U$, parameterize CCPs with flexible logit specifications
+\vspace{5pt}
+\item In restricted likelihood $\mathcal{L}^R$, use model CCPs, which depend on structural parameters\!\!
+\vspace{5pt}
+\item Do success probabilities implied by outcomes align with those implied by CCPs?
+\vspace{10pt}
+\end{itemize}
+\hyperlink{ysl}{\beamerskipbutton{Static Likelihood}}
+\hyperlink{wdl}{\beamerskipbutton{Waitlist Likelihood}}
+\end{frame}
+
+\begin{frame}[label=cpi]
+\frametitle{Cutoff Probability Identification}
+\begin{theorem}[\href{https://jeremyarosen.com/papers/grad_admissions_proofs.pdf}{\underline{Proof}}]
+The maximum likelihood cutoff probability estimate is such that the number of acceptances $N_A$ equals the expected $N_A$. Also, for any cutoff probability and $N_A$, \\ the likelihood is highest when the committee accepts the best $N_A$ applicants.
+\end{theorem}
+\vspace{5pt}
+\begin{itemize}
+\item Identify each year's cutoffs by how selective committee is that year
+\vspace{10pt}
+\item While selectivity identifies cutoffs, sorting improves restricted likelihood
+\vspace{5pt}
+\begin{itemize}
+\item If committee engages in sorting, likelihood-ratio test less likely to reject
+\vspace{5pt}
+\item $\text{LR} = 2\big[\log(\hat{\mathcal L}^U)-\log(\hat{\mathcal L}^R)\big]\sim\chi_Q^2$, such that $Q=\dim(\theta^U)-\dim(\theta^R)$
+\vspace{10pt}
+\end{itemize}
+\end{itemize}
+\hyperlink{ec}{\beamerskipbutton{Empirical Considerations}}
+\end{frame}
+
+\begin{frame}[label=ydueo]
+\frametitle{Unrestricted Dynamic AMEs (Optimal)}
+\vspace{-5pt}
+\begin{table}[htbp]
+  \centering
+  \begin{adjustbox}{totalheight=.65\textheight}
+\input{tables/Year-Dynamic Unrestricted Estimates (Optimal) Presentation}
+  \end{adjustbox}
+  %\label{tab:addlabel}%
+\end{table}%
+\begin{itemize}
+\item Data simulated from reduced-form-calibrated data-generating parameters
+\vspace{1.25pt}
+\item Committee's decision rule aligns with maximizing success probabilities
+\vspace{1.25pt}
+\end{itemize}
+\hyperlink{ssso}{\beamerskipbutton{Summary Statistics (Optimal)}}
+\hyperlink{fydueo}{\beamerskipbutton{Full Unrestricted Dynamic Estimates (Optimal)}}
+\hyperlink{ysueo}{\beamerskipbutton{Unrestricted Static Estimates (Optimal)}}
+\end{frame}
+
+\begin{frame}[label=ydues]
+\frametitle{Unrestricted Dynamic AMEs (Suboptimal)}
+\addtocounter{framenumber}{-1}
+\vspace{-5pt}
+\begin{table}[htbp]
+  \centering
+  \begin{adjustbox}{totalheight=.65\textheight}
+\input{tables/Year-Dynamic Unrestricted Estimates (Suboptimal) Presentation}
+  \end{adjustbox}
+  %\label{tab:addlabel}%
+\end{table}%
+\begin{itemize}
+\item Data simulated from reduced-form-calibrated data-generating parameters
+\vspace{1.25pt}
+\item \textit{Demographic 1} and \textit{Advanced Math} undervalued, \textit{Committee Score} overvalued
+\vspace{1.25pt}
+\end{itemize}
+\hyperlink{ssss}{\beamerskipbutton{Summary Statistics (Suboptimal)}}
+\hyperlink{fydues}{\beamerskipbutton{Full Unrestricted Dynamic Estimates (Suboptimal)}}
+\hyperlink{ysues}{\beamerskipbutton{Unrestricted Static Estimates (Suboptimal)}}
+\end{frame}
+
+\begin{frame}[label=ysreo]
+\frametitle{Restricted Static Estimates (Optimal)}
+\vspace{-5pt}
+\begin{table}[htbp]
+  \centering
+  \begin{adjustbox}{totalheight=.65\textheight}
+\input{tables/Year-Static Restricted Estimates (Optimal) Presentation}
+  \end{adjustbox}
+  %\label{tab:addlabel}%
+\end{table}%
+\begin{itemize}
+\item Likelihood-ratio test does not reject model fitting the data
+\vspace{1.25pt}
+\item In \textit{Year Transition Fewer}, Round 1 cutoff probability $>$ Round 2 cutoff probability
+\vspace{1.25pt}
+\end{itemize}
+\hyperlink{fysreo}{\beamerskipbutton{Full Restricted Static Estimates (Optimal)}}
+\hyperlink{ydreo}{\beamerskipbutton{Restricted Dynamic Estimates (Optimal)}}
+\end{frame}
+
+\begin{frame}[label=ysres]
+\frametitle{Restricted Static Estimates (Suboptimal)}
+\addtocounter{framenumber}{-1}
+\vspace{-5pt}
+\begin{table}[htbp]
+  \centering
+  \begin{adjustbox}{totalheight=.65\textheight}
+\input{tables/Year-Static Restricted Estimates (Suboptimal) Presentation}
+  \end{adjustbox}
+  %\label{tab:addlabel}%
+\end{table}%
+\begin{itemize}
+\item Likelihood-ratio test rejects model fitting the data at 5\% level
+\vspace{1.25pt}
+\item In \textit{Year Transition Fewer}, Round 1 cutoff probability $>$ Round 2 cutoff probability
+\vspace{1.25pt}
+\end{itemize}
+\hyperlink{fysres}{\beamerskipbutton{Full Restricted Static Estimates (Suboptimal)}}
+\hyperlink{ydres}{\beamerskipbutton{Restricted Dynamic Estimates (Suboptimal)}}
+\end{frame}
+
+\begin{frame}[label=wdueo]
+\frametitle{Unrestricted Waitlist AMEs (Optimal)}
+\begin{table}[htbp]
+  \centering
+  \begin{adjustbox}{totalheight=.7\textheight}
+\input{tables/Waitlist-Dynamic Unrestricted Estimates (Optimal) Presentation}
+  \end{adjustbox}
+  %\label{tab:addlabel}%
+\end{table}%
+\begin{itemize}
+\item AME signs as expected $\Rightarrow$ results extend to three-round waitlist model
+\end{itemize}
+\hyperlink{fwdueo}{\beamerskipbutton{Full Unrestricted Waitlist Estimates (Optimal)}}
+\hyperlink{wsso}{\beamerskipbutton{Waitlist Summary Statistics (Optimal)}}
+\hyperlink{whreo}{\beamerskipbutton{Restricted Waitlist Estimates (Optimal)}}
+\end{frame}
+
+\begin{frame}[label=wdues]
+\frametitle{Unrestricted Waitlist AMEs (Suboptimal)}
+\addtocounter{framenumber}{-1}
+\begin{table}[htbp]
+  \centering
+  \begin{adjustbox}{totalheight=.7\textheight}
+\input{tables/Waitlist-Dynamic Unrestricted Estimates (Suboptimal) Presentation}
+  \end{adjustbox}
+  %\label{tab:addlabel}%
+\end{table}%
+\begin{itemize}
+\item AME signs as expected $\Rightarrow$ results extend to three-round waitlist model
+\end{itemize}
+\hyperlink{fwdues}{\beamerskipbutton{Full Unrestricted Waitlist Estimates (Suboptimal)}}
+\hyperlink{wsss}{\beamerskipbutton{Waitlist Summary Statistics (Suboptimal)}}
+\hyperlink{whres}{\beamerskipbutton{Restricted Waitlist Estimates (Suboptimal)}}
+\end{frame}
+
+\AtBeginSection[]
+{
+  \begin{frame}
+    \frametitle{Outline}
+    \tableofcontents[currentsection]
+  \end{frame}
+}
+
+\section{Optimality Tests}
+\addtocounter{framenumber}{-1}
+\begin{frame}[label=lrdgt]
+\frametitle{Likelihood-Ratio and Deviation Gains Tests}
+\begin{itemize}
+\item \textbf{Likelihood-Ratio:}\ Determines whether model fits data generated by committee's decision rule, but not whether committee can do better by changing decision rule
+\vspace{10pt}
+\item \textbf{Deviation Gains:}\ Suppose committee adopts model's decision rule. Will average success probability of acceptance/matriculation set increase, and if so, by how much?\!\!\!\!\!\!
+\vspace{5pt}
+\begin{itemize}
+\item Solve model with $\sigma=0$ in CCPs, compute average yearly $P(\text{Success})$ of model's acceptance/matriculation set, and compare to that of actual decision rule's set
+\vspace{5pt}
+\item $\hat\theta_S^R$ may be biased to rationalize suboptimal behavior, so plug in $\hat\theta_S^U$
+\vspace{5pt}
+\item \textbf{Example:}\ If committee puts too little weight on \textit{Advanced Math}, then its \\ restricted success probability parameter estimate will be biased down
+\vspace{10pt}
+\end{itemize}
+\end{itemize}
+\hyperlink{otn}{\beamerskipbutton{Optimality Tests Notes}}
+\end{frame}
+
+\begin{frame}[label=dgi]
+\frametitle{Deviation Gains Interpretation}
+\begin{itemize}
+\item Suppose there are meaningfully large deviation gains. Then committee may have incorrect beliefs about which types of applicants are most likely to succeed
+\vspace{5pt}
+\begin{itemize}
+\item Matriculation rate of model's acceptance set may be less than that of actual decision rule's acceptance set, making estimated gains an upper bound
+\vspace{5pt}
+\item In waitlist counterfactual, compare success probabilities of matriculation sets by simulating accepted applicants' matriculation decisions after Rounds 2 and 3
+\vspace{10pt}
+\end{itemize}
+\item[$\bigstar$] \textbf{Robustness:}\ Given too few observations for holdout set and infeasibility of \\ large $k$-fold cross-validation due to runtime, implement randomization test
+\vspace{5pt}
+\begin{itemize}
+\item Compute average success probabilities with perturbations of $\hat\theta_S^U$
+\vspace{10pt}
+\end{itemize}
+\end{itemize}
+\hyperlink{hdgtw}{\beamerskipbutton{Deviation Gains Test}}
+\end{frame}
+
+\begin{frame}[label=dgs]
+\frametitle{Deviation Gains (Suboptimal)}
+\begin{figure}
+\centering
+\includegraphics[totalheight=.8\textheight]{figures/simulated_9_gains_cdf_present_NM_opt0}
+\vspace{-7.5pt}
+\end{figure}
+\hyperlink{fdgs}{\beamerskipbutton{Full Deviation Gains (Suboptimal)}}
+\hyperlink{dgms}{\beamerskipbutton{Deviation Gains Missing (Suboptimal)}}
+\end{frame}
+
+\begin{frame}[label=dgo]
+\frametitle{Deviation Gains (Optimal)}
+\addtocounter{framenumber}{-1}
+\begin{figure}
+\centering
+\includegraphics[totalheight=.8\textheight]{figures/simulated_9_gains_cdf_present_NM_opt1}
+\vspace{-7.5pt}
+\end{figure}
+\hyperlink{fdgo}{\beamerskipbutton{Full Deviation Gains (Optimal)}}
+\hyperlink{dgmo}{\beamerskipbutton{Deviation Gains Missing (Optimal)}}
+\end{frame}
+
+\begin{frame}[label=wdgs]
+\frametitle{Waitlist Deviation Gains (Suboptimal)}
+\begin{figure}
+\centering
+\includegraphics[totalheight=.8\textheight]{figures/simulated_9_wait_gains_cdf_present_NM_opt0_mat}
+\vspace{-7.5pt}
+\end{figure}
+\hyperlink{fwdgs}{\beamerskipbutton{Full Waitlist Deviation Gains (Suboptimal)}}
+\hyperlink{wdgms}{\beamerskipbutton{Waitlist Deviation Gains Missing (Suboptimal)}}
+\end{frame}
+
+\begin{frame}[label=wdgo]
+\frametitle{Waitlist Deviation Gains (Optimal)}
+\addtocounter{framenumber}{-1}
+\begin{figure}
+\centering
+\includegraphics[totalheight=.8\textheight]{figures/simulated_9_wait_gains_cdf_present_NM_opt1_mat}
+\vspace{-7.5pt}
+\end{figure}
+\hyperlink{fwdgo}{\beamerskipbutton{Full Waitlist Deviation Gains (Optimal)}}
+\hyperlink{wdgmo}{\beamerskipbutton{Waitlist Deviation Gains Missing (Optimal)}}
+\end{frame}
+
+\begin{frame}[label=conc]
+\frametitle{Conclusion}
+\begin{itemize}
+\item \textbf{Economic Problem:}\ Selecting best options under costly evaluation
+\vspace{10pt}
+\item \textbf{Application:}\ Graduate admissions using synthetic data protocol to protect privacy
+\vspace{10pt}
+\item \textbf{Contribution:}\ Build models to test optimality and quantify deviation gains
+\vspace{5pt}
+\begin{enumerate}
+\item Economics admissions more data-driven than other social science programs
+\vspace{5pt}
+\item Tradeoff between marginal cost of reading file vs.\ quality of marginal acceptance
+\vspace{2.5pt}
+\begin{itemize}
+\item Exploit tradeoff to calculate, in dollars, how much success is worth to committee
+\vspace{2.5pt}
+\item Alternatively, what if committee uses AI to transition 100\% of applicants?
+\vspace{10pt}
+\end{itemize}
+\end{enumerate}
+\item \textbf{Future Research:}\ Two-sided matching model across multiple universities
+\vspace{10pt}
+\end{itemize}
+\hyperlink{sor}{\beamerskipbutton{Summary of Results}}
+\hyperlink{mdg}{\beamerskipbutton{Multiyear Models}}
+\end{frame}
+
+\begin{frame}[label=ty]
+\centering
+\Huge Thank You!
+\end{frame}
+
+\backupbegin
+\section*{Appendices}
+\begin{frame}[label=sde]
+\frametitle{A1:\ Synthetic Rows $\neq$ Real Subjects}
+\begin{figure}
+  \centering
+  \begin{adjustbox}{totalheight=.8\textheight}
+\input{figures/Synthetic Data Example}
+  %\label{tab:addlabel}%
+  \end{adjustbox}
+\end{figure}%
+\hyperlink{sdp}{\beamerskipbutton{Synthetic Data Protocol}}
+\end{frame}
+
+\begin{frame}[label=dv]
+\frametitle{A1:\ Dependent Variables}
+\begin{table}[htbp]
+  \centering
+  \renewcommand{\thetable}{\arabic{table}a}
+  \caption{Dependent Variables}
+  \vspace{5pt}
+  \begin{adjustbox}{totalheight=.5\textheight}
+\input{tables/Dependent Variables}
+  \end{adjustbox}
+  %\label{tab:addlabel}%
+\end{table}%
+\begin{itemize}
+\item Economics-only variables bold, non-economics-only variables italic
+\vspace{2.5pt}
+\item U.S.\ News PhD program rankings, IDEAS/RePEc placement rankings
+\vspace{1.25pt}
+\begin{itemize}
+\item For non-tenure track, use weighted average of university's and maximum rankings
+\vspace{2.5pt}
+\end{itemize}
+\end{itemize}
+\hyperlink{dd}{\beamerskipbutton{Data Description}}
+\end{frame}
+
+\begin{frame}[label=ov]
+\frametitle{A1:\ Objective Variables}
+\addtocounter{framenumber}{-1}
+\begin{table}[htbp]
+  \centering
+  \addtocounter{table}{-1}
+  \renewcommand{\thetable}{\arabic{table}b}
+  \caption{Objective Independent Variables}
+  \vspace{5pt}
+  \begin{adjustbox}{totalheight=.7\textheight}
+\input{tables/Objective Variables}
+  \end{adjustbox}
+  %\label{tab:addlabel}%
+\end{table}%
+\hyperlink{dd}{\beamerskipbutton{Data Description}}
+\end{frame}
+
+\begin{frame}[label=sv]
+\frametitle{A1:\ Subjective Variables}
+\addtocounter{framenumber}{-1}
+\begin{table}[htbp]
+  \centering
+  \addtocounter{table}{-1}
+  \renewcommand{\thetable}{\arabic{table}c}
+  \caption{Subjective Independent Variables}
+  \vspace{5pt}
+  \begin{adjustbox}{totalheight=.5\textheight}
+\input{tables/Subjective Variables}
+  \end{adjustbox}
+  %\label{tab:addlabel}%
+\end{table}%
+\begin{itemize}
+\item Dictionaries from \citet{madera2009}, \\ \citet{young2012}, and \citet{bai2022}
+\vspace{2.5pt}
+\item \#MathCourses and $\mathds 1$(AdvMath) objective after 2020
+\vspace{2.5pt}
+\end{itemize}
+\hyperlink{dd}{\beamerskipbutton{Data Description}}
+\end{frame}
+
+\begin{frame}[label=aerg]
+\frametitle{A1:\ Academia-Equivalent Rankings (Government)}
+\begin{itemize}
+\tiny
+\item \textbf{European Institutions:}\ European Central Bank (80), HM Treasury (120)
+\item \textbf{Foreign Central Banks:}\ Banco Central do Brasil (120), Banco de M\'{e}xico (120), Bank of Canada (80), Bank of England (80), Bank of Israel (120), Bank of Italy (120), Bank of Japan (80), Bank of Spain (120), Banque de France (80), Central Bank of Chile (120), Central Bank of Colombia (120), Central Bank of Korea (80), Central Bank of Turkey (120), Norges Bank (80), Reserve Bank of Australia (80), Reserve Bank of India (120), Reserve Bank of New Zealand (80), Sveriges Riksbank (80), Swiss National Bank (80)
+\item \textbf{Multilaterals/International:}\ African Development Bank (120), Asian Development Bank (120), Bank for International Settlements (80), European Bank for Reconstruction and Development (120), European Investment Bank (120), Inter-American Development Bank (120), International Monetary Fund (40), Statistics Canada (120), World Bank (40)
+\item \textbf{Policy Research Institutes:}\ American Enterprise Institute (120), American Institutes for Research (135), Becker Friedman Institute (80), Brookings Institution (80), Center for Global Development (120), Center for Migration Studies in New York (135), Center for Strategic and International Studies (135), Cowles Foundation (80), Harris School Policy Labs (120), Hoover Institution (80), IDinsight (135), Innovations for Poverty Action (135), J-PAL (80), MDRC (135), National Bureau of Economic Research (80), Peterson Institute for International Economics (80), Pew Research Center (135), RAND Corporation (120), Resources for the Future (120), Urban Institute (120)
+\item \textbf{U.S.\ Executive/Cabinet:}\ Department of Commerce (120), Department of Justice (80), Department of Labor (120), Department of the Treasury (120)
+\item \textbf{U.S.\ Executive Policy Offices:}\ Council of Economic Advisers (80), Office of Management and Budget (80)
+\item \textbf{U.S.\ Federal Reserve System:}\ Board of Governors (40), Atlanta, Boston, Chicago, Cleveland, Dallas, Kansas City, Minneapolis, New York, Philadelphia, Richmond, San Francisco, St.\ Louis (80)
+\item \textbf{U.S.\ GSE/Housing Finance:}\ Fannie Mae (120), Freddie Mac (120)
+\item \textbf{U.S.\ Independent Agencies:}\ Commodity Futures Trading Commission (120), Federal Deposit Insurance Corporation (120), Federal Energy Regulatory Commission (120), Federal Housing Finance Agency (120), Federal Trade Commission (80), Office of Financial Research (80), Securities and Exchange Commission (80)
+\item \textbf{U.S.\ Legislative Committees:}\ Congressional Budget Office (80), Congressional Research Service (120), Joint Committee on Taxation (80), Joint Economic Committee (120)
+\item \textbf{U.S.\ Science and Research:}\ National Science Foundation (80)
+\item \textbf{U.S.\ Statistical Agencies:}\ Bureau of Economic Analysis (120), Bureau of Labor Statistics (120), Census Bureau (120)
+\vspace{5pt}
+\end{itemize}
+\hyperlink{dd}{\beamerskipbutton{Data Description}}
+\end{frame}
+
+\begin{frame}[label=aercto]
+\frametitle{A1:\ Academia-Equivalent Rankings (Consulting/Tech/Other)}
+\addtocounter{framenumber}{-1}
+\begin{itemize}
+\scripttiny
+\item \textbf{Consulting:}\ Aecon Consulting (135), AlixPartners (135), Analysis Group (120), Bain \& Compnay (120), Bates White (135), Berkeley Research Group (120), Boston Consulting Group (120), Brattle Group (120), Charles River Associates (120), Coleman Research (135), Compass Lexecon (120), Cornerstone Research (120), Deloitte Economic and Financial Advisory (135), Econic Partners (135), Economists Incorporated (135), Edgeworth Economics (135), Ernst \& Young Economic Advisory (135), Frontier Economics (135), FTI Consulting (135), Guidehouse (135), KPMG Economics \& Valuation (135), Matrix Economics (135), McKinsey \& Company (120), Mercer (135), NERA Economic Consulting (120), Oliver Wyman (135), PwC Economics, Roland Berger (135), Willis Towers Watson (135)
+\item \textbf{Tech \citep{athey2019}:}\ Airbnb (135), Alibaba (120), Amazon (120), AppNexus (135), Apple (120), Block/Square (135), ByteDance/TikTok (120), CoreLogic (135), Coursera (135), DStillery (135), Didichuxing (120), Digonex (135), DoorDash (135), eBay (120), ECONorthwest (135), Expedia (135), Forkcast (135), Glassdoor (135), Google (120), Granular (135), Groupon (135), Houzz (135), Huawei (135), IBM (120), Indeed (135), ING (135), Instacart (135), Intel (135), Kensho (135), Lending Club (135), LinkedIn (120), Lyft (120), Meta/Facebook (120), Microsoft (120), Netflix (120), Nuna (135), Nvidia (120), Pandora (135), PayPal (135), Pinterest (135), Prattle (135), Quantco (135), Quora (135), Redfin (135), Ripple (135), Roblox (135), Rover (135), Salesforce (135), Shopify (135), Spotify (135), Stripe (135), Trulia (135), Uber (120), Upwork (135), Visa (135), Walmart (135), Wealthfront (135), Yahoo (120), Yelp (135), Zillow (135)
+\item \textbf{Tech Labs:}\ Amazon Science (80), Apple Machine Learning Research (80), DeepMind (40), Google Research (40), Meta Research (80), Microsoft Research (40), Netflix Research (80), OpenAI Research (80), Uber Research (80)
+\item \textbf{Other:}\ AIG (135), Bank of America, (120), Bloomberg (120), Boeing (135) Capital One (135), Exelon (135), ExxonMobil (135), Ford (135), General Electric (135), General Motors (135), Goldman Sachs (120), JPMorgan Chase (120), Liberty Mutual (135), Moody's Analytics (120), Morningstar (135), Nielsen (135), PNC (135), Progressive (135), S\&P Global (120), Shell (135), Swiss Re (135), Toyota (135), Other (135), No Placement (150)
+\vspace{5pt}
+\end{itemize}
+\hyperlink{dd}{\beamerskipbutton{Data Description}}
+\end{frame}
+
+\begin{frame}[label=d]
+\frametitle{A1:\ Dictionaries}
+\begin{itemize}
+\small
+\item \textbf{Recommendation Letters:}\ Porter stemmer reduces words to their roots
+\vspace{2.5pt}
+\begin{itemize}
+\scripttiny
+\item \textbf{Positive/Negative Words:}\ \citet{young2012}'s Lexicoder Sentiment Dictionary
+\item \textbf{Standout, Ability, Research, Grindstone, Communal Words:}\ \citet{bai2022}\!
+\item \textbf{Agentic Words:}\ assertive, confident, aggressive, ambitious, dominant, forceful, independent, daring, outspoken, intellectual \citep{madera2009}; \textbf{AND} audacious, bold, command, compete, decisive, determine, drive, enterprise, fearless, influential, leader, pioneer, powerful, proactive, resilient, resourceful, self-assured, strategic, tenacious, vision
+\item \textbf{Teaching Words:}\ academic, assess, clarity, coach, collaborate, communicate, cultivate, curriculum, demonstrate, develop, educate, encourage, engage, enlighten, evaluate, explain, facilitate, foster, guide, impart, inspire, insight, instruct, knowledge, learn, lesson, mentor, nurture, participate, pedagogy, present, scholar, support, teach, train, tutor, workshop
+\end{itemize}
+\item \textbf{Essays and CVs:}
+\vspace{5pt}
+\begin{itemize}
+\scripttiny
+\item \textbf{Specific Topic:}\ applied, asset, behavior, climate, computation, data, development, dynamic programming, economics, education, empirical, environment, experiment, finance, fiscal, game theory, health, immigration, industrial, inequality, international, io, labor, linear programming, macro, math, metrics, micro, monetary, policy, political, poverty, pricing, probability, public, sports, statistic, theory, trade, urban
+\item \textbf{Economics Work Experience:}\ assistant, fed, imf, international monetary fund, predoc, ra, research, treasury, world bank
+\item \textbf{Working Paper:}\ arxiv, center for economic policy research, cepr, econpapers, national bureau of economic research, nber,  research papers in economics, repec, social science research network, ssrn, working paper
+\item \textbf{Publication:}\ Journal names from IDEAS/RePEc Aggregate Rankings for Journals
+\item \textbf{Coding:}\ c/c++, eviews, fortran, java, jax, julia, latex, matlab, python, r, sas, stata, webscrape
+\vspace{5pt}
+\end{itemize}
+\end{itemize}
+\hyperlink{dd}{\beamerskipbutton{Data Description}}
+\end{frame}
+
+\begin{frame}[label=ivp]
+\frametitle{A1:\ Inference vs.\ Prediction}
+\begin{itemize}
+\item Hard to obtain consistent estimates due to omitted variables
+\vspace{5pt}
+\begin{itemize}
+\item \textbf{Example:}\ Don't observe effort (e.g.\ hours worked). Can bias coefficients upward if predictors correlated with effort and success are independent of effort
+\vspace{5pt}
+\item Existing literature also suffers from this problem, though BEMS \citeyearp{bai2022} parse recommendation letters for ``grindstone terms" (e.g.\ depend*, diligen*)
+\vspace{10pt}
+\end{itemize}
+\item Research questions emphasize prediction over inference
+\vspace{5pt}
+\begin{itemize}
+\item \citet{mullainathan2017} distinguish $\hat\beta$ vs.\ $\hat y$ problems
+\vspace{5pt}
+\item If GRE predicts success, committee should use it regardless of why
+\vspace{5pt}
+\item See Reduced-Form Summary for prediction-based methods
+\vspace{10pt}
+\end{itemize}
+\end{itemize}
+\hyperlink{dd}{\beamerskipbutton{Data Description}}
+\end{frame}
+
+\begin{frame}[label=sas]
+\frametitle{A1:\ Sample Selection}
+\begin{itemize}
+\item Determinants of success conditional on applying vs.\ matriculating
+\vspace{10pt}
+\item BEMS \citeyearp{bai2022} prove that if $P(\text{Success}|\text{Skill})$ is an S-curve, then $\hat\beta$ will be smaller for more selected samples. Consistent with empirical results
+\vspace{10pt}
+\item If there aren't some types of outcomes data (e.g.\ grades, passing comps) for all applicants, or such data are too hard to obtain, use Heckman correction
+\vspace{5pt}
+\begin{itemize}
+\item Let $y_n^*=x_n\beta+u_n$, $d_n=\mathds{1}(z_n\gamma+v_n>0)$, and $y_n=d_ny_n^*$
+\vspace{5pt}
+\item \textbf{Step 1:}\ Run probit of $d$ on $z$ and compute inverse Mills $\hat\lambda_n=\frac{\phi(z_n\hat\gamma)}{\Phi(z_n\hat\gamma)}$
+\vspace{5pt}
+\item \textbf{Step 2:}\ Run OLS, probit, or ordered probit of $y$ on $(x,\hat\lambda)$ to get $\hat\beta$
+\vspace{5pt}
+\item \textbf{Instruments:}\ Enthusiasm score, average acceptance rate/quality
+\vspace{10pt}
+\end{itemize}
+\end{itemize}
+\hyperlink{dd}{\beamerskipbutton{Data Description}}
+\end{frame}
+
+\begin{frame}[label=ioca]
+\frametitle{A1:\ Insufficiency of Comparing AMEs}
+\begin{itemize}
+\item Cannot test optimality by comparing AMEs across regressions. Suppose:
+\vspace{5pt}
+\begin{itemize}
+\item Math skills have large positive effect on success, coding skills smaller positive effect
+\vspace{5pt}
+\item 25\% of applicants have both skills, 25\% math only, 25\% coding only, 25\% neither
+\vspace{5pt}
+\item Committee can accept half of applicants, and other half attend different university
+\vspace{10pt}
+\end{itemize}
+\item Optimizing committee accepts half with math and ignores coding
+\vspace{5pt}
+\begin{itemize}
+\item \textbf{Acceptance Regression:}\ $\text{AME}_{\text{Math}}=1$, $\text{AME}_{\text{Coding}}=0$
+\vspace{5pt}
+\item \textbf{Success Regression:}\ $1>\text{AME}_{\text{Math}}>\text{AME}_{\text{Coding}}>0$
+\vspace{5pt}
+\item Despite optimality, acceptance and success AMEs not equal across regressions
+\vspace{10pt}
+\end{itemize}
+\item \textbf{Upshot:}\ Relationship between AMEs must be interpreted through a model
+\vspace{10pt}
+\end{itemize}
+\hyperlink{avsa}{\beamerskipbutton{Acceptance vs.\ Success AMEs}}
+\end{frame}
+
+\begin{frame}[label=wt]
+\frametitle{A1:\ Wald Tests}
+\begin{itemize}
+\item Test if admission and success AMEs are same across programs
+\vspace{5pt}
+\begin{itemize}
+\item \textbf{Example:}\ Does elite undergraduate university predict admission and/or success more or less for economics than for other programs?
+\vspace{5pt}
+\item \textbf{Data:}\ Simulated from reduced-form-calibrated data-generating parameters
+\vspace{10pt}
+\end{itemize}
+\item Can I test if acceptance AMEs equal success AMEs within programs?
+\vspace{5pt}
+\begin{itemize}
+\item Predictors of acceptance only (success only) may be overvalued (undervalued), provided committee wants to select based on a ``success" model
+\vspace{5pt}
+\item \textbf{Problem:}\ Not a test if admissions decisions are optimal
+\vspace{5pt}
+\item Need structural model of admissions to conclude about optimality
+\vspace{10pt}
+\end{itemize}
+\end{itemize}
+\hyperlink{avsa}{\beamerskipbutton{Acceptance vs.\ Success AMEs}}
+\end{frame}
+
+\begin{frame}[label=lowt]
+\frametitle{A1:\ Logit Wald Test Across Programs}
+Assume $\big(Y^E\indep Y^{NE}\big)\big|X$. Let $P\big(Y_n^E=1\big|x_n^E;\theta^E\big) = \frac{\exp(x_{n,0}^E\theta_0^E+x_{n,1}^E\theta_1^E)}{1+\exp(x_{n,0}^E\theta_0^E+x_{n,1}^E\theta_1^E)}$, \\ and $P\big(Y_n^{NE}=1\big|x_n^{NE};\theta^{NE}\big) = \frac{\exp(x_{n,0}^{NE}\theta_0^{NE}+x_{n,1}^{NE}\theta_1^{NE})}{1+\exp(x_{n,0}^{NE}\theta_0^{NE}+x_{n,1}^{NE}\theta_1^{NE})}$. Finally, let $N=N_E+N_{NE}$. Then:
+\begin{multline*}
+\mathcal{L}_N^U\big(y\big|x;\theta\big) = \prod_{n=1}^{N_E}P\big(Y_n^E=1\big|x_n^E;\theta^E\big)^{Y_n^E}\big[1-P\big(Y_n^E=1\big|x_n^E;\theta^E\big)\big]^{1-Y_n^E}\\
+\prod_{n=1}^{N_{NE}}P\big(Y_n^{NE}=1\big|x_n^{NE};\theta^{NE}\big)^{Y_n^{NE}}\big[1-P\big(Y_n^{NE}=1\big|x_n^{NE};\theta^{NE}\big)\big]^{1-Y_n^{NE}}.
+\end{multline*}
+\begin{itemize}
+\item $Y \in \{\mathds{1}(\text{Accept}), \mathds{1}(\text{Attend Program}), \mathds{1}(\text{Complete Program}), \mathds{1}(\text{Good Placement})\}$
+\vspace{2.5pt}
+\item \textbf{Test:}\ Let $g(\hat\theta)\!=\!\frac{1}{N_E}\!\sum_{n=1}^{N_E}\!\hat P_n^E(1\!-\!\hat P_n^E)\hat\theta_1^E\!-\!\frac{1}{N_{NE}}\!\sum_{n=1}^{N_{NE}}\!\hat P_n^{NE}(1\!-\!\hat P_n^{NE})\hat\theta_1^{NE}$. Then: \\ $\text{W} = g(\hat\theta)'[\nabla_\theta g(\hat\theta)\hat V(\hat\theta)\nabla_\theta g(\hat\theta)'\big]^{-1}g(\hat\theta)\sim\chi_Q^2$. Compare AMEs per \citet{mood2010}
+\end{itemize}
+\hyperlink{avsa}{\beamerskipbutton{Acceptance vs.\ Success AMEs}}
+\end{frame}
+
+\begin{frame}[label=liwt]
+\frametitle{A1:\ Linear Wald Test Across Programs}
+Assume $\big(Y^E\indep Y^{NE}\big)\big|X$, i.e.\ $\big(\text{Economics}\indep\text{Non-Economics}\big)\big|\text{Predictors}$. \\
+Let $f\big(y_n^E\big|x_n^E;\beta^E,\sigma^2_E\big) = \frac{1}{\sqrt{2\pi\sigma^2_E}}\exp\Big[\frac{-1}{2\sigma^2_E}\big(y_n^E-x_{n,0}^E\beta_0^E-x_{n,1}^E\beta_1^E\big)^2\Big]$, and \\
+$f\big(y_n^{NE}\big|x_n^{NE};\beta^{NE},\sigma^2_S\big) = \frac{1}{\sqrt{2\pi\sigma^2_{NE}}}\exp\Big[\frac{-1}{2\sigma^2_{NE}}\big(y_n^{NE}-x_{n,0}^{NE}\beta_0^{NE}-x_{n,1}^{NE}\beta_1^{NE}\big)^2\Big]$. Then:
+\begin{equation*}
+\mathcal{L}_N^U\big(y\big|x;\beta,\sigma^2\big) = \prod_{n=1}^{N_E}f\big(y_n^E\big|x_n^E;\beta^E,\sigma^2_E\big)\prod_{n=1}^{N_{NE}}f\big(y_n^{NE}\big|x_n^{NE};\beta^{NE},\sigma^2_{NE}\big).
+\end{equation*}
+\begin{itemize}
+\item $Y \in \{\mathds{1}(\text{Standardized Committee Score}), \mathds{1}(\text{Standardized Placement Rank})\}$
+\vspace{2.5pt}
+\item \textbf{Test:}\ Let $g(\hat\beta_1) = \hat\beta_1^E-\hat\beta_1^{NE}$. (Can also do likelihood-ratio test.) \\ Then $\text{W} = g(\hat\beta_1)'[\nabla_{\beta,\sigma^2} g(\hat\beta_1)\hat V(\hat\beta,\hat\sigma^2)\nabla_{\beta,\sigma^2} g(\hat\beta_1)'\big]^{-1}g(\hat\beta_1)\sim\chi_Q^2$
+\vspace{2.5pt}
+\item \textbf{Assumption:}\ Homoskedasticity (i.e.\ $\forall n, \: \sigma^2_n=\sigma^2$)
+\vspace{2.5pt}
+\end{itemize}
+\hyperlink{avsa}{\beamerskipbutton{Acceptance vs.\ Success AMEs}}
+\end{frame}
+
+\begin{frame}[label=aq]
+\frametitle{A1:\ Additional Questions}
+\begin{itemize}
+\item Are there different determinants of different types of success? (AKKLP \citeyear{athey2007})
+\vspace{5pt}
+\begin{itemize}
+\item Need different skills at different stages in the program, such as grades vs.\ placement
+\vspace{5pt}
+\item For some programs, initial placement matters less than for economics
+\vspace{10pt}
+\end{itemize}
+\item Different determinants for international applicants? (KW \citeyear{krueger2000})
+\vspace{5pt}
+\begin{itemize}
+\item \textbf{Admission:}\ May have different preparation and/or interests
+\vspace{5pt}
+\item \textbf{Completion:}\ Depending on country, may have fewer outside options
+\vspace{5pt}
+\item \textbf{Placement:}\ May return to native country after graduation
+\vspace{10pt}
+\end{itemize}
+\item Different determinants over time? (2015 to 2023)
+\vspace{5pt}
+\begin{itemize}
+\item COVID-19 and other macro factors; changes in professions (e.g.\ more empirics)
+\vspace{5pt}
+\item For economics, increased importance of elite predocs and Fed RAships
+\vspace{5pt}
+\end{itemize}
+\end{itemize}
+\hyperlink{avsa}{\beamerskipbutton{Acceptance vs.\ Success AMEs}}
+\end{frame}
+
+\begin{frame}[label=pctcr]
+\frametitle{A2.1:\ Portfolio Choice to Cutoff Rule (BEMS \citeyear{bai2022})}
+\textbf{Portfolio Choice Problem:}
+\begin{equation*}
+\max_{(d_1,\dots,d_N)\in\{A,R\}^N} \sum_{n=1}^NP(y_n=S|x_n,z_n)\mathds1(d_n=A), \: \text{such that:} \: \sum_{n=1}^N\mathds1(d_n=A)\leq N_A
+\end{equation*}
+\begin{equation*}
+\mathcal L(d_1,\dots,d_N;\lambda) = \sum_{n=1}^N\big[P(y_n=S|x_n,z_n)-\lambda\big]\mathds1(d_n=A)+\lambda N_A
+\end{equation*}
+\textbf{Cutoff Rule Solution:}
+\vspace{-7.5pt}
+\begin{equation*}
+\forall n\in\{1,\dots,N\}, \: d_n(x_n,z_n|\lambda^*)=\begin{cases}
+A & \text{if } P(y_n=S|x_n,z_n)>\lambda^* \\
+\{A,R\} & \text{if } P(y_n=S|x_n,z_n)=\lambda^* \\
+R & \text{if } P(y_n=S|x_n,z_n)<\lambda^*
+\end{cases}
+\end{equation*}
+\textbf{Upshot:}\ $\lambda^*$ is cutoff probability. Denote it hereafter as $P(y^*=S)$
+\vspace{2.5pt}
+\begin{itemize}
+\item $P(y^*=S)\in\big[P(y_{N_A+1}=S|x_{N_A+1},z_{N_A+1}),P(y_{N_A}=S|x_{N_A},z_{N_A})\big]$
+\end{itemize}
+\hyperlink{mf}{\beamerskipbutton{Model Framework}}
+\end{frame}
+
+\begin{frame}[label=moa]
+\frametitle{A2.1:\ Models of Admissions}
+\begin{enumerate}
+\item \textbf{Year-Static Model:}\ Committee ranks applicants based on objective variables, reads files of applicants above Cutoff 1, re-ranks surviving applicants based on all variables, and accepts surviving applicants above Cutoff 2
+\vspace{10pt}
+\item \textbf{Year-Dynamic Model:}\ Committee forms expectation in Round 1 about applicants who survive to Round 2. Favors applicants with objective variables positively correlated with good subjective variables
+\vspace{10pt}
+\item \textbf{Waitlist-Hybrid/Dynamic Models:}\ After Round 1, committee accepts or waitlists applicants in Round 2. After accepted applicants matriculate or don't matriculate, committee accepts or rejects waitlisted applicants in Round 3. \\ Favors likely matriculants in Round 2 to increase selectivity in Round 3
+\vspace{10pt}
+\end{enumerate}
+\hyperlink{crp}{\beamerskipbutton{Cutoff Rule Problem}}
+\end{frame}
+
+\begin{frame}[label=dom]
+\frametitle{A2.1:\ Description of Models}
+\begin{itemize}
+\item \textbf{Round 2:}\ If accept applicant, get success probability $P(y=S|x,z)$, where \\ Success $= \mathds{1}(\text{Complete Program})$ or $\mathds{1}(\text{Good Placement})$. If reject applicant, \\ get $P(y_2^*=S|t) = P(\text{Success})$ of year $t$'s marginal accepted applicant
+\vspace{10pt}
+\item \textbf{Round 1:}\ If reject applicant, get $P(y_1^*=S|t) = P(\text{Success})$ of year $t$'s marginal transitioned applicant. Can be less or greater than $P(y_2^*=S|t)$ depending on value placed on committee's time vs.\ admitting a successful cohort
+\vspace{5pt}
+\begin{itemize}
+\item \textbf{Year-Static:}\ If transition applicant, get $P(y=S|x)$, or $P(\text{Success})$ unconditional on $z$. It may differ from $P(y=S|x,z)$, though it still accounts for $x$'s effect on $z$
+\vspace{5pt}
+\item \textbf{Year-Dynamic:}\ If transition applicant, get $\mathbb{E}[v_2(x,z,t,\epsilon_2)|x,t]=$ expected value of Round 2, where $z$ is integrated out conditional on $x$ via $F(z|x)$
+\vspace{5pt}
+\item \textbf{Year-Myopic:}\ In $\mathbb{E}[v_2(x,z,t,\epsilon_2)|x,t]$, replace $F(z|x)$ with $F(z)$
+\vspace{10pt}
+\end{itemize}
+\end{itemize}
+\hyperlink{crp}{\beamerskipbutton{Cutoff Rule Problem}}
+\end{frame}
+
+\begin{frame}[label=ysp]
+\frametitle{A2.1:\ Year-Static Parameterization}
+\textbf{Unrestricted CCPs:}
+\vspace{-5pt}
+\footnotesize
+\begin{equation*}
+P_{d_1} = P\big(d_1=T\big|x,t;\theta_T\big) = \frac{\exp(f_T(x,t)\theta_T)}{1+\exp(f_T(x,t)\theta_T)}
+\end{equation*}
+\begin{equation*}
+P_{d_2} = P\big(d_2=A\big|x,z,t;\theta_A\big) = \frac{\exp(f_A(x,z,t)\theta_A)}{1+\exp(f_A(x,z,t)\theta_A)}
+\end{equation*}
+\normalsize
+\textbf{Success Probabilities:}
+\vspace{-5pt}
+\footnotesize
+\begin{equation*}
+P_{y_1} = P\big(y = S\big|x;\theta_{S_1}\big) = \frac{\exp(f_{S_1}(x)\theta_{S_1})}{1+\exp(f_{S_1}(x)\theta_{S_1})}
+\end{equation*}
+\begin{equation*}
+\quad P_{y_2} = P\big(y = S\big|x,z;\theta_{S_2}\big) = \frac{\exp(f_{S_2}(x,z)\theta_{S_2})}{1+\exp(f_{S_2}(x,z)\theta_{S_2})}
+\end{equation*}
+\normalsize
+\textbf{Cutoff Probabilities:}
+\vspace{-5pt}
+\footnotesize
+\begin{equation*}
+P_{y_1^*} = P\big(y_1^* = S\big|t;\theta_{S_1^*}\big) = \frac{\exp(f_{S_1^*}(t)\theta_{S_1^*})}{1+\exp(f_{S_1^*}(t)\theta_{S_1^*})}
+\end{equation*}
+\begin{equation*}
+P_{y_2^*} = P\big(y_2^* = S\big|t;\theta_{S_2^*}\big) = \frac{\exp(f_{S_2^*}(t)\theta_{S_2^*})}{1+\exp(f_{S_2^*}(t)\theta_{S_2^*})}
+\vspace{-5pt}
+\end{equation*}
+\hyperlink{ysm}{\beamerskipbutton{Year-Static Model}}
+\end{frame}
+
+\begin{frame}[label=ydp]
+\frametitle{A2.1:\ Year-Dynamic Parameterization}
+\begin{align*}
+\begin{split}
+\mathbb{E}[v_2(x,z,t,\epsilon_2)|x,t] &= \int_{\widetilde z}\sigma\log\bigg(\sum_{\widetilde{d_2}\in\{A,R\}}e^{u_2(x,\widetilde z,t,\widetilde{d_2})/\sigma}\bigg)dF(\widetilde z|x) \\
+&= \int_{\widetilde{z_1}}\cdots\int_{\widetilde{z_J}}\bigg[\cdot\bigg]dF_1(\widetilde{z_1}|\widetilde{z_2},\dots\widetilde{z_J},x)\cdots dF_J(\widetilde{z_J}|x)
+\end{split}
+\end{align*}
+\begin{itemize}
+\item \textbf{Continuous:}\ $f_{z|x}(z_j|x;\beta_{F_{z|x,j}},\sigma^2_{F_{z|x,j}}) = \frac{1}{\sqrt{2\pi\sigma^2_{F_{z|x,j}}}}\exp\Big[\frac{-1}{2\sigma^2_{F_{z|x,j}}}(z_j-g(x)\beta_{F_{z|x,j}})^2\Big]$
+\item \textbf{Binary:}\ $P(z_j=1|x;\theta_{F_{z|x,j}}) = \frac{\exp\big(g(x)\theta_{F_{z|x,j}}\big)}{1+\exp\big(g(x)\theta_{F_{z|x,j}}\big)}$
+\vspace{-5pt}
+\item \textbf{Multinomial:}\ $P(z_j=(k\neq K)|x;\theta_{F_{z|x,j}^k}) = \frac{\exp\Big(g(x)\theta_{F_{z|x,j}^k}\Big)}{1+\sum_{\ell=1}^{K-1}\exp\Big(g(x)\theta_{F_{z|x,j}^\ell}\Big)}$
+\end{itemize}
+\hyperlink{ydm}{\beamerskipbutton{Year-Dynamic Model}}
+\end{frame}
+
+\begin{frame}[label=ysl]
+\frametitle{A2.1:\ Year-Static Likelihood}
+\small
+\begin{multline*}
+\mathcal{L}_N^U\big(\theta\big) = \prod_{n=1}^{N_T}P_{d_{1,n}}(\theta_T)P_{d_{2,n}}(\theta_A)^{\mathds{1}(d_{2,n}=A)}(1-P_{d_{2,n}}(\theta_A))^{\mathds{1}(d_{2,n}=R)}\Big[P_{y_{1,n}}(\theta_{S_1})P_{y_{2,n}}(\theta_{S_2})\Big]^{\mathds{1}(y_n=S)} \\
+\!\!\!\!\Big[(1-P_{y_{1,n}}(\theta_{S_1}))(1-P_{y_{2,n}}(\theta_{S_2}))\Big]^{\mathds{1}(y_n=F)}\prod_{n=N_T+1}^N(1-P_{d_{1,n}}(\theta_T))P_{y_{1,n}}(\theta_{S_1})^{\mathds{1}(y_n=S)}(1-P_{y_{1,n}}(\theta_{S_1}))^{\mathds{1}(y_n=F)}
+\end{multline*}
+\normalsize
+\begin{itemize}
+\item \textbf{Problem:}\ I don't observe success for recent years
+\vspace{5pt}
+\begin{itemize}
+\item \textbf{Solution:}\ Separate block for recent years without success subblocks
+\vspace{5pt}
+\item \textbf{Assumption:}\ Older years representative of recent years
+\vspace{10pt}
+\end{itemize}
+\item If years are similar, can make $(\theta_{S_1^*},\theta_{S_2^*})$ in $\mathcal{L}^R$ intercept only
+\vspace{10pt}
+\end{itemize}
+\hyperlink{mle}{\beamerskipbutton{Maximum Likelihood Estimation}}
+\end{frame}
+
+\begin{frame}[label=ymhl]
+\frametitle{A2.1:\ Year-Dynamic Heckman-Corrected Likelihood}
+\footnotesize
+\begin{multline*}
+\mathcal{L}_N^U\big(\theta\big) = \prod_{n=1}^{N_T}\Phi(x_n,t_n;\theta_H)f(z_n|x_n,\frac{\phi(x_n,t_n;\theta_H)}{\Phi(x_n,t_n;\theta_H)};\theta_F)P_{d_{1,n}}(\theta_T)P_{d_{2,n}}(\theta_A)^{\mathds{1}(d_{2,n}=A)}(1-P_{d_{2,n}}(\theta_A))^{\mathds{1}(d_{2,n}=R)} \\
+P_{y_n}(\theta_S)^{\mathds{1}(y_n=S)}(1-P_{y_n}(\theta_S))^{\mathds{1}(y_n=F)}\prod_{n=N_T+1}^N(1-\Phi(x_n,t_n;\theta_H))(1-P_{d_{1,n}}(\theta_T))
+\end{multline*}
+\normalsize
+\begin{itemize}
+\item I may not observe $z$ for applicants who didn't survive Round 1
+\vspace{10pt}
+\item Estimate \citet{heckman1979}-corrected full-information likelihood
+\vspace{10pt}
+\item \textbf{Heckman Instrument:}\ Year $t$ affects $d_1$ but not $z$
+\vspace{10pt}
+\end{itemize}
+\hyperlink{mle}{\beamerskipbutton{Maximum Likelihood Estimation}}
+\end{frame}
+
+\begin{frame}[label=cia]
+\frametitle{A2.1:\ Conditional Independence Assumption}
+\begin{itemize}
+\item Should I assume success is independent of admission conditional on predictors?
+\vspace{2.5pt}
+\begin{itemize}
+\item This university aside, if you don't get into anywhere good, you're unlikely to succeed\!
+\vspace{2.5pt}
+\item Can bias $\hat\theta_S$ upward since without loss of generality, a low GRE is correlated with not getting in anywhere good, which itself prevents you from succeeding
+\vspace{5pt}
+\end{itemize}
+\item So should I replace $P\big(y=S\big|x;\theta_S\big)$ with $P\big(y=S\big|d,x;\theta_S\big)$?
+\vspace{2.5pt}
+\begin{itemize}
+\item \textbf{Problem 1:}\ If I condition $y$ on $d=\mathds{1}$(Accept), I would be ``logistically regressing" $d$ on $y$ on $d$ in restricted likelihood, which will fail
+\vspace{2.5pt}
+\item \textbf{Problem 2:}\ Because $d$ is a function of $x$, even conditioning $y$ on $x$ and \\ $d=\mathds{1}$(Attend Program) will ``collapse" $\hat\theta_S$ (except for $\hat\theta_S^d$)
+\vspace{2.5pt}
+\item[$\bigstar$] \textbf{Example:}\ In AKKLP \citeyearp{athey2007}, quantitative GRE predicts course grades but not when Committee Score is included; coefficient even goes negative for Metrics Grade
+\vspace{2.5pt}
+\item \textbf{Problem 3:}\ Committee doesn't know \textit{ex-ante} whether $d$ will be 1 or 0
+\vspace{5pt}
+\end{itemize}
+\end{itemize}
+\hyperlink{mle}{\beamerskipbutton{Maximum Likelihood Estimation}}
+\end{frame}
+
+\begin{frame}[label=ec]
+\frametitle{A2.1:\ Empirical Considerations}
+\begin{itemize}
+\item \textbf{Selection Effects:}\ Track success for all applicants, including non-matriculants
+\vspace{5pt}
+\begin{itemize}
+\item In selected samples, success parameters are biased down (e.g.\ quantitative GRE)
+\vspace{10pt}
+\end{itemize}
+\item \textbf{Potential Outcomes:}\ Track which graduate program all applicants attended, \\ and add expected program ranking conditional on $(x,z)$ as control function
+\vspace{5pt}
+\begin{itemize}
+\item If a variable only predicts success by helping applicant get into elite graduate program, then committee should not use that variable to rank applicants
+\vspace{10pt}
+\end{itemize}
+\item \textbf{Unobservables:}\ I may not observe all information that committee observes
+\vspace{5pt}
+\begin{itemize}
+\item \textbf{Example:}\ Recommendation letter has nuances that algorithms can't detect
+\vspace{5pt}
+\item Include subjective committee score in $z$ as a proxy for this information
+\vspace{5pt}
+\end{itemize}
+\end{itemize}
+\hyperlink{cpi}{\beamerskipbutton{Cutoff Probability Identification}}
+\end{frame}
+
+\begin{frame}[label=crwm]
+\frametitle{A2.1:\ Cutoff Rule with Matriculation}
+\textbf{Portfolio Choice Problem:}
+\begin{equation*}
+\max_{\delta\in\{\delta|\delta: \mathbb R^K\rightarrow[0,1]\}}\int_{(x,z)\in\mathbb R^K}P(y=S|x,z)P(m=M|x,z)\delta(x,z)dF(x,z),
+\end{equation*}
+\begin{equation*}
+\text{such that:} \: \int_{(x,z)\in\mathbb R^K}P(m=M|x,z)\delta(x,z)dF(x,z)\leq N_M
+\end{equation*}
+\begin{equation*}
+\mathcal L(\delta;\lambda) = \int_{(x,z)\in\mathbb R^K}\big[P(y=S|x,z)-\lambda\big]P(m=M|x,z)\delta(x,z)dF(x,z)+\lambda N_M
+\end{equation*}
+\textbf{Cutoff Rule Solution:}
+\vspace{-7.5pt}
+\begin{equation*}
+\forall (x,z)\in\mathbb R^K, \: \delta(x,z|\lambda^*)=\begin{cases}
+1 & \text{if } P(y=S|x,z)>\lambda^* \\
+[0,1] & \text{if } P(y=S|x,z)=\lambda^* \\
+0 & \text{if } P(y=S|x,z)<\lambda^*
+\end{cases}
+\end{equation*}
+\textbf{Upshot:}\ Point-identified cutoff probability $\lambda^*$ is with respect to success probabilities
+\hyperlink{pcwm}{\beamerskipbutton{Portfolio Choice with Matriculation}}
+\end{frame}
+
+\begin{frame}[label=wm1]
+\frametitle{A2.1:\ Waitlist Model 1}
+\textbf{Round 3:}
+\vspace{-5pt}
+\begin{equation*}
+v_3(x,z,\overline{m_{2A}},\epsilon_3) = \max_{d_3\in\{A,R\}}u_3(x,z,\overline{m_{2A}},d_3)+\epsilon_3(d_3), \: \text{such that:}
+\end{equation*}
+\begin{equation*}
+u_3(x,z,\overline{m_{2A}},d_3) = \underbrace{P(y=S|x,z)\mathds{1}(d_3=A)}_{\text{If accept, get $P(\text{Success})$}}+\underbrace{P(y_3^*=S|\overline{m_{2A}})\mathds{1}(d_3=R)}_{\text{If reject, get $P(\text{Cutoff})$}}
+\vspace{5pt}
+\end{equation*}
+\textbf{Round 2:}
+\vspace{-5pt}
+\begin{equation*}
+v_2(x,z,\ddot{m_2},\epsilon_2) = \max_{d_2\in\{A,W\}}u_2(x,z,\ddot{m_2},d_2)+\epsilon_2(d_2), \: \text{such that:}
+\end{equation*}
+\begin{equation*}
+\!\!\!\!\!\!u_2(x,z,\ddot{m_2},d_2)\!=\!\underbrace{P(y\!=\!S|x,z)\mathds{1}(d_2\!=\!A)}_{\text{If accept, get $P(\text{Success})$}}+\underbrace{\beta\mathbb{E}[v_3(x,z,\overline{m_{2A}},\epsilon_3)|x,z,\ddot{m_2}]\mathds{1}(d_2\!=\!W)}_{\text{If waitlist, get discounted $\mathbb E[\text{Social Surplus}]$}}, \: \text{such that:}
+\vspace{2.5pt}
+\end{equation*}
+\begin{equation*}
+\mathbb{E}[v_3(x,z,\overline{m_{2A}},\epsilon_3)|x,z,\ddot{m_2}] = \int_{\widetilde{\overline{m_{2A}}}}\sigma\log\bigg(\sum_{\widetilde{d_3}\in\{A,R\}}e^{u_3(x,z,\widetilde{\overline{m_{2A}}},\widetilde{d_3})/\sigma}\bigg)dF_{\overline{m_{2A}}|\ddot{m_2}}(\widetilde{\overline{m_{2A}}}|\ddot{m_2})
+\vspace{-2.5pt}
+\end{equation*}
+\hyperlink{wmo}{\beamerskipbutton{Waitlist Decision Graph}}
+\end{frame}
+
+\begin{frame}[label=wm2]
+\frametitle{A2.1:\ Waitlist Model 2}
+\only<1>{\noindent
+\textbf{Round 1:}
+\begin{equation*}
+v_1(x,t,\epsilon_1) = \max_{d_1\in\{T,R\}}u_1(x,t,d_1)+\epsilon_1(d_1), \: \text{such that:}
+\end{equation*}
+\begin{equation*}
+u_1(x,t,d_1) = \underbrace{\mathbb{E}[v_2(x,z,\ddot{m_2},\epsilon_2)|x]\mathds{1}(d_1=T)}_{\text{If transition, get $\mathbb E[\text{Social Surplus}]$}}+\underbrace{L(y_1^*=S|t)\mathds{1}(d_1=R)}_{\text{If reject, get $L(\text{Cutoff})$}}, \: \text{such that:}
+\end{equation*}
+\begin{equation*}
+\mathbb{E}[v_2(x,z,\ddot{m_2},\epsilon_2)|x]=\int_{\widetilde z}\int_{\widetilde{\ddot{m_2}}}\sigma\log\bigg(\sum_{\widetilde{d_2}\in\{A,R\}}e^{u_2(x,\widetilde z,\widetilde{\ddot{m_2}},\widetilde{d_2})/\sigma}\bigg)dF_{\ddot{m_2}|x,z}(\widetilde{\ddot{m_2}}|x,\widetilde z)dF_{z|x}(\widetilde z|x)
+\vspace{10pt}
+\end{equation*}
+}
+\only<2->{\noindent
+\textbf{Round 1 (Hybrid):}
+\begin{equation*}
+v_1(x,t,\epsilon_1) = \max_{d_1\in\{T,R\}}u_1(x,t,d_1)+\epsilon_1(d_1), \: \text{such that:}
+\end{equation*}
+\begin{equation*}
+u_1(x,t,d_1) = \underbrace{P(y=S|x)\mathds{1}(d_1=T)}_{\text{If transition, get $P(\text{Success})$}}+\underbrace{P(y_1^*=S|t)\mathds{1}(d_1=R)}_{\text{If reject, get $P(\text{Cutoff})$}}
+\vspace{10pt}
+\end{equation*}
+}
+\textbf{Conditional Choice Probabilities:}
+\begin{equation*}
+P(d_r|\text{states}) = \frac{\exp(u_r(\text{states},d_r)/\sigma)}{\sum_{\widetilde{d_r}\in D_r}\exp(u_r(\text{states},\widetilde{d_r})/\sigma)}
+\end{equation*}
+\hyperlink{wmo}{\beamerskipbutton{Waitlist Decision Graph}}
+\end{frame}
+
+\begin{frame}[label=wdp1]
+\frametitle{A2.1:\ Waitlist-Dynamic Parameterization 1}
+\textbf{Unrestricted CCPs:}
+\vspace{-5pt}
+\footnotesize
+\begin{equation*}
+P_{d_1} = P\big(d_1=T\big|x,t;\theta_T\big) = \frac{\exp(f_T(x,t)\theta_T)}{1+\exp(f_T(x,t)\theta_T)}
+\end{equation*}
+\begin{equation*}
+P_{d_2} = P\big(d_2=A\big|x,z,\ddot{m_2};\theta_{A_2}\big) = \frac{\exp(f_{A_2}(x,z,\ddot{m_2})\theta_{A_2})}{1+\exp(f_{A_2}(x,z,\ddot{m_2})\theta_{A_2})}
+\end{equation*}
+\begin{equation*}
+P_{d_3} = P\big(d_3=A\big|x,z,\overline{m_{2A}};\theta_{A_3}\big) = \frac{\exp(f_{A_3}(x,z,\overline{m_{2A}})\theta_{A_3})}{1+\exp(f_{A_3}(x,z,\overline{m_{2A}})\theta_{A_3})}
+\end{equation*}
+\normalsize
+\textbf{Success Probability:}
+\vspace{-5pt}
+\footnotesize
+\begin{equation*}
+P_y = P\big(y = S\big|x,z;\theta_S\big) = \frac{\exp(f_S(x,z)\theta_S)}{1+\exp(f_S(x,z)\theta_S)}
+\end{equation*}
+\normalsize
+\textbf{Cutoff Level/Probability:}
+\vspace{-5pt}
+\footnotesize
+\begin{equation*}
+L_{y_1^*} = L\big(y_1^* = S\big|t;\theta_{S_1^*}\big) = \exp(f_{S_1^*}(t)\theta_{S_1^*})
+\end{equation*}
+\begin{equation*}
+P_{y_3^*} = P\big(y_3^* = S\big|\overline{m_{2A}};\theta_{S_3^*}\big) = \frac{\exp(f_{S_3^*}(\overline{m_{2A}})\theta_{S_3^*})}{1+\exp(f_{S_3^*}(\overline{m_{2A}})\theta_{S_3^*})}
+\vspace{-5pt}
+\end{equation*}
+\normalsize
+\hyperlink{wmo}{\beamerskipbutton{Waitlist Decision Graph}}
+\end{frame}
+
+\begin{frame}[label=wdp2]
+\frametitle{A2.1:\ Waitlist-Dynamic Parameterization 2}
+\begin{itemize}
+\item[$\bigstar$] Assume $z$ and $\ddot{m_2}$ are conditionally independent:
+\end{itemize}
+\footnotesize
+\begin{align*}
+\mathbb{E}[v_2(x,z,\ddot{m_2},\epsilon_2)|x]\ &= \int_{\widetilde z}\int_{\widetilde{\ddot{m_2}}}\sigma\log\bigg(\sum_{\widetilde{d_2}\in\{A,R\}}e^{u_2(x,\widetilde z,\widetilde{\ddot{m_2}},\widetilde{d_2})/\sigma}\bigg)dF_{\ddot{m_2}|x,z}(\widetilde{\ddot{m_2}}|x,\widetilde z)dF_{z|x}(\widetilde z|x) \\
+&= \int_{\widetilde{z_1}}\cdots\int_{\widetilde{z_{J_z}}}\int_{\widetilde{\ddot{m_2}}}\bigg[\cdot\bigg]dF_{\ddot{m_2}|x,z}(\widetilde{\ddot{m_2}}|x,\widetilde z)dF_{z|x,1}(\widetilde{z_1}|\widetilde{z_2},\dots,\widetilde{z_{J_z}},x)\cdots dF_{z|x,{J_z}}(\widetilde{z_{J_z}}|x)
+\end{align*}
+\begin{equation*}
+\mathbb{E}[v_3(x,z,\overline{m_{2A}},\epsilon_3)|x,z,\ddot{m_2}] = \int_{\widetilde{\overline{m_{2A}}}}\sigma\log\bigg(\sum_{\widetilde{d_3}\in\{A,R\}}e^{u_3(x,z,\widetilde{\overline{m_{2A}}},\widetilde{d_3})/\sigma}\bigg)dF_{\overline{m_{2A}}|\ddot{m_2}}(\widetilde{\overline{m_{2A}}}|\ddot{m_2})
+\end{equation*}
+\normalsize
+\begin{itemize}
+\item \textbf{Continuous:}\ \footnotesize $f_{z|x}(z_j|x;\beta_{F_{z|x,j}},\sigma^2_{F_{z|x,j}}) = \frac{1}{\sqrt{2\pi\sigma^2_{F_{z|x,j}}}}\exp\Big[\frac{-1}{2\sigma^2_{F_{z|x,j}}}(z_j-g(x)\beta_{F_{z|x,j}})^2\Big]$ \normalsize
+\vspace{-5pt}
+\item \textbf{Binary:}\ \footnotesize $P(z_j=1|x;\theta_{F_{z|x,j}}) = \frac{\exp\big(g(x)\theta_{F_{z|x,j}}\big)}{1+\exp\big(g(x)\theta_{F_{z|x,j}}\big)}$ \normalsize
+\vspace{-10pt}
+\item \textbf{Multinomial:}\ \footnotesize $P(z_j=(k\neq K)|x;\theta_{F_{z|x,j}^k}) = \frac{\exp\Big(g(x)\theta_{F_{z|x,j}^k}\Big)}{1+\sum_{\ell=1}^{K-1}\exp\Big(g(x)\theta_{F_{z|x,j}^\ell}\Big)}$ \normalsize
+\end{itemize}
+\vspace{-10pt}
+\hyperlink{wmo}{\beamerskipbutton{Waitlist Decision Graph}}
+\end{frame}
+
+\begin{frame}[label=wdl]
+\frametitle{A2.1:\ Waitlist-Dynamic Likelihood}
+\footnotesize
+\begin{multline*}
+\mathcal{L}_{N_1}^U(\theta) = \prod_{n=1}^{N_3}f_{z|x}(z_n|x_n;\theta_{F_{z|x}})f_{\ddot{m_2}|x,z}(\ddot{m_{2,n}}|x_n,z_n;\theta_{F_{\ddot{m_2}|x,z}})f_{\overline{m_{2A}}|\ddot{m_2}}(\overline{m_{2A,n}}|\ddot{m_{2,n}};\theta_{F_{\overline{m_{2A}}|\ddot{m_2}}}) \\
+P_{d_{1,n}}(\theta_T)(1-P_{d_{2,n}}(\theta_{A_2}))P_{d_{3,n}}(\theta_{A_3})\!^{\mathds{1}(d_{3,n}=A)}(1-P_{d_{3,n}}(\theta_{A_3}))\!^{\mathds{1}(d_{3,n}=R)}P_{y_n}(\theta_S)\!^{\mathds{1}(y_n=S)}(1-P_{y_n}(\theta_S))\!^{\mathds{1}(y_n=F)} \\
+\prod_{n=N_3+1}^{N_2}f_{z|x}(z_n|x_n;\theta_{F_{z|x}})f_{\ddot{m_2}|x,z}(\ddot{m_{2,n}}|x_n,z_n;\theta_{F_{\ddot{m_2}|x,z}})f_{\overline{m_{2A}}|\ddot{m_2}}(\overline{m_{2A,n}}|\ddot{m_{2,n}};\theta_{F_{\overline{m_{2A}}|\ddot{m_2}}}) \\
+P_{d_{1,n}}(\theta_T)P_{d_{2,n}}(\theta_{A_2})P_{y_n}(\theta_S)^{\mathds{1}(y_n=S)}(1-P_{y_n}(\theta_S))^{\mathds{1}(y_n=F)} \\
+\prod_{n=N_2+1}^{N_1}f_{z|x}(z_n|x_n;\theta_{F_{z|x}})f_{\ddot{m_2}|x,z}(\ddot{m_{2,n}}|x_n,z_n;\theta_{F_{\ddot{m_2}|x,z}})(1-P_{d_{1,n}}(\theta_T))
+\end{multline*}
+\normalsize
+\begin{itemize}
+\item For $\mathcal{L}_R$, use ($\theta_F^U$,$\theta_S^U$) as initial guess of ($\theta_F^R$,$\theta_S^R$)
+\vspace{2.5pt}
+\item Heckman corrections may be necessary, such as for $f_{z|x}$ and $f_{\ddot{m_2}|x,z}$
+\end{itemize}
+\hyperlink{mle}{\beamerskipbutton{Maximum Likelihood Estimation}}
+\end{frame}
+
+\begin{frame}[label=fwm1]
+\frametitle{A2.1:\ Full Waitlist Model 1}
+\textbf{Round 3:}
+\scriptsize
+\begin{equation*}
+v_3(x,z,\overline{m_{2A}},n_3,\overline{q_3},\overline{m_3},\epsilon_3) = \max_{d_3\in\{A,R\}}u_3(x,z,\overline{m_{2A}},n_3,\overline{q_3},\overline{m_3},d_3)+\epsilon_3(d_3), \: \text{such that:}
+\end{equation*}
+\begin{equation*}
+u_3(x,z,\overline{m_{2A}},n_3,\overline{q_3},\overline{m_3},d_3) = P(y=S|x,z)\mathds{1}(d_3=A)+P(y_3^*=S|\overline{m_{2A}},n_3,\overline{q_3},\overline{m_3})\mathds{1}(d_3=R)
+\end{equation*}
+\normalsize
+\textbf{Round 2:}
+\scriptsize
+\begin{equation*}
+v_2(x,z,\ddot{m_2},n_2,\overline{q_2},\overline{m_2},\epsilon_2) = \max_{d_2\in\{A,W\}}u_2(x,z,\ddot{m_2},n_2,\overline{q_2},\overline{m_2},d_2)+\epsilon_2(d_2), \: \text{such that:}
+\end{equation*}
+\begin{multline*}
+\!\!\!\!\!\!\!\!\!\!\!\!\!\!u_2(x,z,\ddot{m_2},n_2,\overline{q_2},\overline{m_2},d_2) = P(y=S|x,z)\mathds{1}(d_2=A)+\beta\mathbb{E}[v_3(x,z,\overline{m_{2A}},n_3,\overline{q_3},\overline{m_3},\epsilon_3)|x,z,\ddot{m_2},n_2,\overline{q_2},\overline{m_2}]\mathds{1}(d_2=W), \: \text{such that:}
+\end{multline*}
+\begin{multline*}
+\mathbb{E}[v_3(x,z,\overline{m_{2A}},n_3,\overline{q_3},\overline{m_3},\epsilon_3)|x,z,\ddot{m_2},n_2,\overline{q_2},\overline{m_2}] = \\ \int_{\widetilde{\overline{m_3}}}\int_{\widetilde{\overline{q_3}}}\int_{\widetilde{n_3}}\int_{\widetilde{\overline{m_{2A}}}}\sigma\log\bigg(
+\sum_{\widetilde{d_3}\in\{A,R\}}e^{u_3(x,z,\widetilde{\overline{m_{2A}}},\widetilde{n_3},\widetilde{\overline{q_3}},\widetilde{\overline{m_3}},\widetilde{d_3})/\sigma}\bigg)dF_{\overline{m_{2A}}|\ddot{m_2}}(\widetilde{\overline{m_{2A}}}|\ddot{m_2})dF_{n_3|n_2}(\widetilde{n_3}|n_2)dF_{\overline{q_3}|\overline{q_2}}(\widetilde{\overline{q_3}}|\overline{q_2})dF_{\overline{m_3}|\overline{m_2}}(\widetilde{\overline{m_3}}|\overline{m_2})
+\end{multline*}
+\hyperlink{wmo}{\beamerskipbutton{Waitlist Decision Graph}}
+\end{frame}
+
+\begin{frame}[label=fwm2]
+\frametitle{A2.1:\ Full Waitlist Model 2}
+\textbf{Round 1:}
+\scriptsize
+\begin{equation*}
+v_1(x,t,n_1,\overline{q_1},\overline{m_1},\epsilon_1) = \max_{d_1\in\{T,R\}}u_1(x,t,n_1,\overline{q_1},\overline{m_1},d_1)+\epsilon_1(d_1), \: \text{such that:}
+\end{equation*}
+\begin{itemize}
+\item \small \textbf{Hybrid:}\ \scriptsize $u_1(x,t,d_1) = P(y=S|x)\mathds{1}(d_1=T)+P(y_1^*=S|t)\mathds{1}(d_1=R)$
+\end{itemize}
+\begin{itemize}
+\item \small \textbf{Dynamic:}\ \scriptsize $u_1(x,t,n_1,\overline{q_1},\overline{m_1},d_1) = \mathbb{E}[v_2(x,z,\ddot{m_2},n_2,\overline{q_2},\overline{m_2},\epsilon_2)|x,n_1,\overline{q_1},\overline{m_1}]\mathds{1}(d_1=T)+L(y_1^*=S|t)\mathds{1}(d_1=R), \: \text{such that:}$
+\end{itemize}
+\begin{multline*}
+\mathbb{E}[v_2(x,z,\ddot{m_2},n_2,\overline{q_2},\overline{m_2},\epsilon_2)|x,n_1,\overline{q_1},\overline{m_1}] = \\
+\!\!\!\!\!\!\!\!\int_{\widetilde{\overline{m_2}}}\!\int_{\widetilde{\overline{q_2}}}\!\int_{\widetilde{n_2}}\!\int_{\widetilde z}\!\int_{\widetilde{\ddot{m_2}}}\!\sigma\!\log\!\bigg(\!\sum_{\widetilde{d_2}\in\{A,R\}}\!e^{u_2(x,\widetilde z,\widetilde{\ddot{m_2}},\widetilde{n_2},\widetilde{\overline{q_2}},\widetilde{\overline{m_2}},\widetilde{d_2})/\sigma}\!\bigg)\!dF_{\ddot{m_2}|x,z}(\widetilde{\ddot{m_2}}|x,\widetilde z)dF_{z|x}(\widetilde z|x)dF_{n_2|n_1}(\widetilde{n_2}|n_1)dF_{\overline{q_2}|\overline{q_1}}(\widetilde{\overline{q_2}}|\overline{q_1})dF_{\overline{m_2}|\overline{m_1}}(\widetilde{\overline{m_2}}|\overline{m_1})
+\end{multline*}
+\normalsize
+\textbf{Conditional Choice Probabilities:}
+\scriptsize
+\begin{equation*}
+P(d_r|\text{states}) = \frac{\exp(u_r(\text{states},d_r)/\sigma)}{\sum_{\widetilde{d_r}\in D_r}\exp(u_r(\text{states},\widetilde{d_r})/\sigma)}
+\end{equation*}
+\hyperlink{wmo}{\beamerskipbutton{Waitlist Decision Graph}}
+\end{frame}
+
+\begin{frame}[label=fwdp1]
+\frametitle{A2.1:\ Full Waitlist-Dynamic Parameterization 1}
+\textbf{Unrestricted CCPs:}
+\vspace{-5pt}
+\footnotesize
+\begin{equation*}
+P_{d_1} = P\big(d_1=T\big|x,t,n_1,\overline{q_1},\overline{m_1};\theta_T\big) = \frac{\exp(f_T(x,t,n_1,\overline{q_1},\overline{m_1})\theta_T)}{1+\exp(f_T(x,t,n_1,\overline{q_1},\overline{m_1})\theta_T)}
+\end{equation*}
+\begin{equation*}
+P_{d_2} = P\big(d_2=A\big|x,z,\ddot{m_2},n_2,\overline{q_2},\overline{m_2};\theta_{A_2}\big) = \frac{\exp(f_{A_2}(x,z,\ddot{m_2},n_2,\overline{q_2},\overline{m_2})\theta_{A_2})}{1+\exp(f_{A_2}(x,z,\ddot{m_2},n_2,\overline{q_2},\overline{m_2})\theta_{A_2})}
+\end{equation*}
+\begin{equation*}
+P_{d_3} = P\big(d_3=A\big|x,z,\overline{m_{2A}},n_3,\overline{q_3},\overline{m_3};\theta_{A_3}\big) = \frac{\exp(f_{A_3}(x,z,\overline{m_{2A}},n_3,\overline{q_3},\overline{m_3})\theta_{A_3})}{1+\exp(f_{A_3}(x,z,\overline{m_{2A}},n_3,\overline{q_3},\overline{m_3})\theta_{A_3})}
+\end{equation*}
+\normalsize
+\textbf{Success Probability:}
+\vspace{-5pt}
+\footnotesize
+\begin{equation*}
+P_y = P\big(y = S\big|x,z;\theta_S\big) = \frac{\exp(f_S(x,z)\theta_S)}{1+\exp(f_S(x,z)\theta_S)}
+\end{equation*}
+\normalsize
+\textbf{Cutoff Levels/Probabilities:}
+\vspace{-5pt}
+\footnotesize
+\begin{equation*}
+L_{y_1^*} = L\big(y_1^* = S\big|t;\theta_{S_1^*}\big) = \exp(f_{S_1^*}(t)\theta_{S_1^*})
+\end{equation*}
+\begin{equation*}
+P_{y_3^*} = P\big(y_3^* = S\big|\overline{m_{2A}},n_3,\overline{q_3},\overline{m_3};\theta_{S_3^*}\big) = \frac{\exp(f_{S_3^*}(\overline{m_{2A}},n_3,\overline{q_3},\overline{m_3})\theta_{S_3^*})}{1+\exp(f_{S_3^*}(\overline{m_{2A}},n_3,\overline{q_3},\overline{m_3})\theta_{S_3^*})}
+\vspace{-5pt}
+\end{equation*}
+\hyperlink{wmo}{\beamerskipbutton{Waitlist Decision Graph}}
+\end{frame}
+
+\begin{frame}[label=fwdp2]
+\frametitle{A2.1:\ Full Waitlist-Dynamic Parameterization 2}
+\small
+\begin{itemize}
+\item[$\bigstar$] Assume $(z,\ddot{m_2},n_2,\overline{q_2},\overline{m_2})$ and $(\overline{m_{2A}},n_3,\overline{q_3},\overline{m_3})$ are mutually conditionally independent:
+\vspace{-10pt}
+\end{itemize}
+\scriptsize
+\begin{multline*}
+\mathbb{E}[v_2(x,z,\ddot{m_2},n_2,\overline{q_2},\overline{m_2},\epsilon_2)|x,n_1,\overline{q_1},\overline{m_1}] = \int_{\widetilde{\overline{m_2}}}\int_{\widetilde{\overline{q_2}}}\int_{\widetilde{n_2}}\int_{\widetilde z}\int_{\widetilde{\ddot{m_2}}}\sigma\log\bigg(\sum_{\widetilde{d_2}\in\{A,R\}}e^{u_2(x,\widetilde z,\widetilde{\ddot{m_2}},\widetilde{n_2},\widetilde{\overline{q_2}},\widetilde{\overline{m_2}},\widetilde{d_2})/\sigma}\bigg) \\
+\vspace{-10pt}
+dF_{\ddot{m_2}|x,z}(\widetilde{\ddot{m_2}}|x,\widetilde z)dF_{z|x}(\widetilde z|x)dF_{n_2|n_1}(\widetilde{n_2}|n_1)dF_{\overline{q_2}|\overline{q_1}}(\widetilde{\overline{q_2}}|\overline{q_1})dF_{\overline{m_2}|\overline{m_1}}(\widetilde{\overline{m_2}}|\overline{m_1}) = \int_{\widetilde{\overline{m_2}}}\int_{\widetilde{\overline{q_2}}}\int_{\widetilde{n_2}}\int_{\widetilde{z_1}}\cdots\int_{\widetilde{z_{J_z}}}\int_{\widetilde{\ddot{m_2}}}\bigg[\cdot\bigg] \\
+\vspace{-10pt}
+dF_{\ddot{m_2}|x,z}(\widetilde{\ddot{m_2}}|x,\widetilde z)dF_{z|x,1}(\widetilde{z_1}|\widetilde{z_2},\dots,\widetilde{z_{J_z}},x)\cdots dF_{z|x,{J_z}}(\widetilde{z_{J_z}}|x)dF_{n_2|n_1}(\widetilde{n_2}|n_1)dF_{\overline{q_2}|\overline{q_1}}(\widetilde{\overline{q_2}}|\overline{q_1})dF_{\overline{m_2}|\overline{m_1}}(\widetilde{\overline{m_2}}|\overline{m_1})
+\end{multline*}
+\vspace{-15pt}
+\begin{multline*}
+\mathbb{E}[v_3(x,z,\overline{m_{2A}},n_3,\overline{q_3},\overline{m_3},\epsilon_3)|x,z,\ddot{m_2},n_2,\overline{q_2},\overline{m_2}] = \\ \int_{\widetilde{\overline{m_3}}}\int_{\widetilde{\overline{q_3}}}\int_{\widetilde{n_3}}\int_{\widetilde{\overline{m_{2A}}}}\sigma\log\bigg(\sum_{\widetilde{d_3}\in\{A,R\}}e^{u_3(x,z,\widetilde{\overline{m_{2A}}},\widetilde{n_3},\widetilde{\overline{q_3}},\widetilde{\overline{m_3}},\widetilde{d_3})/\sigma}\bigg)dF_{\overline{m_{2A}}|\ddot{m_2}}(\widetilde{\overline{m_{2A}}}|\ddot{m_2})dF_{n_3|n_2}(\widetilde{n_3}|n_2)dF_{\overline{q_3}|\overline{q_2}}(\widetilde{\overline{q_3}}|\overline{q_2})dF_{\overline{m_3}|\overline{m_2}}(\widetilde{\overline{m_3}}|\overline{m_2})
+\end{multline*}
+\vspace{-15pt}
+\small
+\begin{itemize}
+\item \textbf{Continuous:}\ \scriptsize $f_{z|x}(z_j|x;\beta_{F_{z|x,j}},\sigma^2_{F_{z|x,j}}) = \frac{1}{\sqrt{2\pi\sigma^2_{F_{z|x,j}}}}\exp\Big[\frac{-1}{2\sigma^2_{F_{z|x,j}}}(z_j-g(x)\beta_{F_{z|x,j}})^2\Big]$ \small
+\vspace{-10pt}
+\item \textbf{Binary:}\ \scriptsize $P(z_j=1|x;\theta_{F_{z|x,j}}) = \frac{\exp\big(g(x)\theta_{F_{z|x,j}}\big)}{1+\exp\big(g(x)\theta_{F_{z|x,j}}\big)}$ \small
+\vspace{-10pt}
+\item \textbf{Multinomial:}\ \tiny $P(z_j=(k\neq K)|x;\theta_{F_{z|x,j}^k}) = \frac{\exp\Big(g(x)\theta_{F_{z|x,j}^k}\Big)}{1+\sum_{\ell=1}^{K-1}\exp\Big(g(x)\theta_{F_{z|x,j}^\ell}\Big)}$
+\vspace{-10pt}
+\end{itemize}
+\hyperlink{wmo}{\beamerskipbutton{Waitlist Decision Graph}}
+\end{frame}
+
+\begin{frame}[label=fwdl]
+\frametitle{A2.1:\ Full Waitlist-Dynamic Likelihood}
+\vspace{-15pt}
+\scriptsize
+\begin{multline*}
+\!\!\!\!\!\!\!\!\!\!\!\!\!\!\!\mathcal{L}_{N_1}^U(\theta)\!=\!\prod_{n=1}^{N_3}f_{z|x}(z_n|x_n;\theta_{F_{z|x}})f_{\ddot{m_2}|x,z}(\ddot{m_{2,n}}|x_n,z_n;\theta_{F_{\ddot{m_2}|x,z}})f_{n_2|n_1}(n_{2,n}|n_{1,n};\theta_{F_{n_2|n_1}})f_{\overline{q_2}|\overline{q_1}}(\overline{q_{2,n}}|\overline{q_{1,n}};\theta_{F_{\overline{q_2}|\overline{q_1}}})f_{\overline{m_2}|\overline{m_1}}(\overline{m_{2,n}}|\overline{m_{1,n}};\theta_{F_{\overline{m_2}|\overline{m_1}}}) \\
+f_{\overline{m_{2A}}|\ddot{m_2}}(\overline{m_{2A,n}}|\ddot{m_{2,n}};\theta_{F_{\overline{m_{2A}}|\ddot{m_2}}})f_{n_3|n_2}(n_{3,n}|n_{2,n};\theta_{F_{n_3|n_2}})f_{\overline{q_3}|\overline{q_2}}(\overline{q_{3,n}}|\overline{q_{2,n}};\theta_{F_{\overline{q_3}|\overline{q_2}}})f_{\overline{m_3}|\overline{m_2}}(\overline{m_{3,n}}|\overline{m_{2,n}};\theta_{F_{\overline{m_3}|\overline{m_2}}}) \\
+P_{d_{1,n}}(\theta_T)(1-P_{d_{2,n}}(\theta_{A_2}))P_{d_{3,n}}(\theta_{A_3})^{\mathds{1}(d_{3,n}=A)}(1-P_{d_{3,n}}(\theta_{A_3}))^{\mathds{1}(d_{3,n}=R)}P_{y_n}(\theta_S)^{\mathds{1}(y_n=S)}(1-P_{y_n}(\theta_S))^{\mathds{1}(y_n=F)} \\
+\prod_{n=N_3+1}^{N_2}f_{z|x}(z_n|x_n;\theta_{F_{z|x}})f_{\ddot{m_2}|x,z}(\ddot{m_{2,n}}|x_n,z_n;\theta_{F_{\ddot{m_2}|x,z}})f_{n_2|n_1}(n_{2,n}|n_{1,n};\theta_{F_{n_2|n_1}})f_{\overline{q_2}|\overline{q_1}}(\overline{q_{2,n}}|\overline{q_{1,n}};\theta_{F_{\overline{q_2}|\overline{q_1}}})f_{\overline{m_2}|\overline{m_1}}(\overline{m_{2,n}}|\overline{m_{1,n}};\theta_{F_{\overline{m_2}|\overline{m_1}}}) \\
+f_{\overline{m_{2A}}|\ddot{m_2}}(\overline{m_{2A,n}}|\ddot{m_{2,n}};\theta_{F_{\overline{m_{2A}}|\ddot{m_2}}})f_{n_3|n_2}(n_{3,n}|n_{2,n};\theta_{F_{n_3|n_2}})f_{\overline{q_3}|\overline{q_2}}(\overline{q_{3,n}}|\overline{q_{2,n}};\theta_{F_{\overline{q_3}|\overline{q_2}}})f_{\overline{m_3}|\overline{m_2}}(\overline{m_{3,n}}|\overline{m_{2,n}};\theta_{F_{\overline{m_3}|\overline{m_2}}}) \\
+P_{d_{1,n}}(\theta_T)P_{d_{2,n}}(\theta_{A_2})P_{y_n}(\theta_S)^{\mathds{1}(y_n=S)}(1-P_{y_n}(\theta_S))^{\mathds{1}(y_n=F)}\prod_{n=N_2+1}^{N_1}f_{z|x}(z_n|x_n;\theta_{F_{z|x}})f_{\ddot{m_2}|x,z}(\ddot{m_{2,n}}|x_n,z_n;\theta_{F_{\ddot{m_2}|x,z}}) \\
+f_{n_2|n_1}(n_{2,n}|n_{1,n};\theta_{F_{n_2|n_1}})f_{\overline{q_2}|\overline{q_1}}(\overline{q_{2,n}}|\overline{q_{1,n}};\theta_{F_{\overline{q_2}|\overline{q_1}}})f_{\overline{m_2}|\overline{m_1}}(\overline{m_{2,n}}|\overline{m_{1,n}};\theta_{F_{\overline{m_2}|\overline{m_1}}})(1-P_{d_{1,n}}(\theta_T))
+\end{multline*}
+\vspace{-10pt}
+\small
+\begin{itemize}
+\item For $\mathcal{L}^R$ and $\mathcal{L}^U$, estimate $\theta_S^U$ with 1st-stage likelihood to get $\overline{q}=$ current year's $\overline{P_{y_n}}$: \\
+$\mathcal{L}_{N_2}^P(\theta_S) = \prod_{n=1}^{N_2}P_{y_n}(\theta_S)^{\mathds{1}(y_n=S)}(1-P_{y_n}(\theta_S))^{\mathds{1}(y_n=F)}$
+\end{itemize}
+\hyperlink{mle}{\beamerskipbutton{Maximum Likelihood Estimation}}
+\end{frame}
+
+\begin{frame}[label=wn]
+\frametitle{A2.1:\ Waitlist Notes:\ Memory and Dynamics}
+\begin{itemize}
+\item \textbf{Memory:}\ Need at least 5 years of data to identify all parameters
+\vspace{5pt}
+\begin{itemize}
+\item For simplicity with simulated data, suppose committee provides $m_2$. But to estimate $m_2$ with actual data, estimate matriculation parameters in first-stage likelihood
+\vspace{10pt}
+\end{itemize}
+\item \textbf{Dynamics:}\ What if committee doesn't think dynamically?
+\vspace{5pt}
+\begin{itemize}
+\item If $\ddot{m_2}$ increasing increases $\overline{F}_{\overline{m_{2A}}|\ddot{m_2}}$, which increases $\mathbb{E}[P(\text{Cutoff})_3]$, then it should
+\vspace{5pt}
+\item Don't need success data for all years to identify these two effects
+\vspace{10pt}
+\end{itemize}
+\item \textbf{Over/Undershooting:}\ Committee may wish to avoid both
+\vspace{5pt}
+\begin{itemize}
+\item To Round 3's $P$(Cutoff), add target cohort size minus number of early matriculants
+\vspace{5pt}
+\item Penalty parameter may be unidentifiable, so may have to calibrate it
+\vspace{10pt}
+\end{itemize}
+\end{itemize}
+\hyperlink{wme}{\beamerskipbutton{Waitlist Memory and Dynamics}}
+\end{frame}
+
+\begin{frame}[label=otn]
+\frametitle{A2.1:\ Optimality Tests Notes}
+\begin{enumerate}
+\item \textbf{Likelihood-Ratio:}\ Restricted model not nested in unrestricted model \citep{vuong1989}\!\!\!
+\vspace{5pt}
+\begin{itemize}
+\item \textbf{Program Fit:}\ Does model fit program's behavior?
+\vspace{2.5pt}
+\begin{itemize}
+\item $d_1 = \mathds{1}$(Transition), $d_2 = \mathds{1}$(Accept)
+\vspace{2.5pt}
+\item If not, could program be behaving suboptimally \citep{simon1956}?
+\vspace{5pt}
+\end{itemize}
+\item \textbf{Profession Fit:}\ Does model fit profession's behavior?
+\vspace{2.5pt}
+\begin{itemize}
+\item $d_2 = \mathds{1}$(AttendProgram) but $d_1$ unobservable, so must estimate one-stage model
+\vspace{10pt}
+\end{itemize}
+\end{itemize}
+\item \textbf{Deviation Gains:}\ Adjust $\theta_{S^*}$ so transition and acceptance rates are unchanged
+\vspace{5pt}
+\begin{itemize}
+\item \textbf{Year-Static:}\ Rank all applicants by $P(y=S|x)$, set $\theta_{S_1^*}$ to match transition rate, rank survivors by $P(S|x,z)$, and set $\theta_{S_2^*}$ to match acceptance rate
+\vspace{5pt}
+\item \textbf{Year-Dynamic:}\ Use MSM to estimate new $(\theta_{S_1^*},\theta_{S_2^*})$; moments are each year's transition and acceptance rates. But counterfactual does not require $(\hat\theta_{S_1^*},\hat\theta_{S_2^*})$
+\vspace{10pt}
+\end{itemize}
+\end{enumerate}
+\hyperlink{lrdgt}{\beamerskipbutton{Optimality Tests}}
+\end{frame}
+
+\begin{frame}[label=hdgtw]
+\frametitle{A2.1:\ How Deviation Gains Test Works}
+\begin{enumerate}
+\item Write Bellman equations for committee's optimization problem
+\vspace{1.25pt}
+\item Estimate parameters. Rationality assumption distorts estimates
+\vspace{1.25pt}
+\item Re-estimate parameters without rationality, and use to solve model
+\vspace{1.25pt}
+\item Compare selections from model's decision rule to actual decision rule
+\vspace{1.25pt}
+\item To prevent overfitting, use perturbations of estimates for comparison
+\vspace{1.25pt}
+\end{enumerate}
+\begin{figure}
+\begin{adjustbox}{totalheight=.45\textheight}
+\input{figures/Optimality Test}
+\end{adjustbox}
+\end{figure}
+\vspace{-5pt}
+\hyperlink{dgi}{\beamerskipbutton{Deviation Gains Interpretation}}
+\end{frame}
+
+\begin{frame}[label=dga1]
+\frametitle{A2.1:\ Deviation Gains Algorithm 1}
+\textbf{Year-Static/Dynamic/Myopic:}
+\vspace{10pt}
+\begin{enumerate}
+\item Rank applicants in each year by $P(y=S|x)$ for static, or $\mathbb{E}[v_2(x,z,\epsilon_2)|x]$ for dynamic and myopic. Transition top $N_T$ applicants, and reject the rest
+\vspace{5pt}
+\item Rank surviving applicants by $P(y=S|x,z)$, and accept top $N_A$ survivors. \\ Compute $\overline{P(y=S|x,z)}$ of acceptance set, and compare to committee's set
+\end{enumerate}
+\vspace{10pt}
+\hyperlink{dgi}{\beamerskipbutton{Deviation Gains Interpretation}}
+\end{frame}
+
+\begin{frame}[label=dga2]
+\frametitle{A2.1:\ Deviation Gains Algorithm 2}
+\textbf{Waitlist-Hybrid/Dynamic:}
+\vspace{5pt}
+\begin{enumerate}
+\item Rank applicants in each year by $P(y=S|x)$ for hybrid, or $\mathbb{E}[v_2(x,z,\ddot{m_2},\epsilon_2)|x]$ \\ for dynamic. Transition top $N_T$ applicants, and reject the rest
+\vspace{5pt}
+\item Rank surviving applicants by $P(y=S|x,z)-\beta\mathbb{E}[v_3(x,z,\overline{m_{2A}},\epsilon_3)|x,z,\ddot{m_2}]$. \\ Accept top $N_{2A}$ survivors, and waitlist the rest
+\vspace{5pt}
+\item Rank early acceptances by matriculation score $m$. All early acceptances with $m$ \\ at least as high as committee's marginal early matriculant matriculate
+\vspace{5pt}
+\item Rank waitlisted applicants by $P(y=S|x,z)$. Increase/decrease $N_{3A}$ to $N_{3A}'$ depending on how many spots remain relative to committee
+\vspace{5pt}
+\item Rank late acceptances by $m$. Top ones matriculate until cohort is filled. \\ Compute $\overline{P(y=S|x,z)}$ of matriculation set, and compare to committee's set
+\vspace{5pt}
+\end{enumerate}
+\hyperlink{dgi}{\beamerskipbutton{Deviation Gains Interpretation}}
+\end{frame}
+
+\begin{frame}[label=rt1]
+\frametitle{A2.1:\ Randomization Tests 1}
+\vspace{-2.5pt}
+\begin{theorem}[\href{https://jeremyarosen.com/papers/grad_admissions_proofs.pdf}{\underline{Proof}}]
+Let $d^R$ be the model's decision rule, and $d^U$ the actual decision rule. By optimality:
+\vspace{-15pt}
+\scriptsize
+\begin{multline*}
+\frac{1}{N_A}\sum_{n=1}^NP\Big(y_n=S\Big|x_n,z_n;\hat\theta_S^U\Big)\mathds{1}\Big\{d_{1,n}\Big[P_{y_n}\Big(\hat\theta^U\Big)\Big]=T,d_{2,n}^R\Big[P_{y_n}\Big(\hat\theta_S^U\Big)\Big]=A\Big\} \\
+\geq \frac{1}{N_A}\sum_{n=1}^NP\Big(y_n=S\Big|x_n,z_n;\hat\theta_S^U\Big)\mathds{1}\Big\{d_{1,n}\Big[P_{y_n}\Big(\hat\theta^U\Big)\Big]=T,d_{2,n}^U\Big[P_{y_n}\Big(\hat\theta_A^U\Big)\Big]=A\Big\}
+\end{multline*}
+\end{theorem}
+\normalsize
+\begin{itemize}
+\item But for perturbation $\widetilde{\theta_{S,t}^U}$ of $\hat\theta_S^U$'s asymptotic distribution, can have:
+\vspace{-5pt}
+\scriptsize
+\begin{multline*}
+\frac{1}{N_A}\sum_{n=1}^NP\Big(y_n=S\Big|x_n,z_n;\widetilde{\theta_{S,t}^U}\Big)\mathds{1}\Big\{d_{1,n}\Big[P_{y_n}\Big(\hat\theta_U\Big)\Big]=T,d_{2,n}^R\Big[P_{y_n}\Big(\hat\theta_S^U\Big)\Big]=A\Big\} \\
+< \frac{1}{N_A}\sum_{n=1}^NP\Big(y_n=S\Big|x_n,z_n;\widetilde{\theta_{S,t}^U}\Big)\mathds{1}\Big\{d_{1,n}\Big[P_{y_n}\Big(\hat\theta_U\Big)\Big]=T,d_{2,n}^U\Big[P_{y_n}\Big(\hat\theta_A^U\Big)\Big]=A\Big\}
+\end{multline*}
+\normalsize
+\vspace{-10pt}
+\item For waitlist models, compare matriculants, not acceptances
+\end{itemize}
+\hyperlink{dgi}{\beamerskipbutton{Deviation Gains Interpretation}}
+\end{frame}
+
+\begin{frame}[label=rt2]
+\frametitle{A2.1:\ Randomization Tests 2}
+\begin{itemize}
+\item \textbf{Question:}\ Are deviation gains robust to estimation error?
+\vspace{10pt}
+\item \textbf{Test 1:}\ Across $T$ perturbations, plot CDFs of $\overline{P(\text{Success})}$ of both acceptance sets. Does the model's CDF stochastically dominate the actual decision rule's CDF?
+\vspace{10pt}
+\item \textbf{Test 2:}\ Two-sample Kolmogorov-Smirnov test of equality of CDFs:
+\vspace{5pt}
+\begin{itemize}
+\item Let $X=\overline{P_y\big[d\big(\hat\theta^U\big),\widetilde{\theta_S^U}\big]}$, and $F_T(x)$ be $X$'s CDF over $T$ perturbations
+\vspace{5pt}
+\item Then $D_T = \sup_x \big|F_T^R(x)-F_T^U(x)\big|$. Reject equality if $D_T > \sqrt{\frac{-\log{(\alpha/2)}}{T}}$
+\end{itemize}
+\vspace{10pt}
+\item \textbf{Open Question:}\ Would deviation gains be borne out in practice?
+\vspace{10pt}
+\end{itemize}
+\hyperlink{dgi}{\beamerskipbutton{Deviation Gains Interpretation}}
+\end{frame}
+
+\begin{frame}[label=sor]
+\frametitle{A2.1:\ Summary of Results}
+\begin{itemize}
+\item \textbf{Results:}\ Estimation results are well behaved
+\vspace{2.5pt}
+\begin{itemize}
+\item \textbf{Year-Static:}\ Likelihood-ratio test rejects and deviation gains statistically significant only for simulated dataset where committee misvalues applicant characteristics
+\vspace{2.5pt}
+\item \textbf{Year-Dynamic:}\ Likelihood-ratio test always rejects, but gains exist only for non-optimizing dataset. Gains are slightly larger than in year-myopic model
+\vspace{2.5pt}
+\item \textbf{Waitlist-Hybrid/Dynamic:}\ Matriculation estimates are as expected
+\vspace{5pt}
+\end{itemize}
+\item Example of cutoff probability reversal if committee transitions few files in Round 1:
+\vspace{2.5pt}
+\begin{itemize}
+\item Three applicants:\ A, B, and C. Committee transitions two, accepts one
+\vspace{2.5pt}
+\item A is best and C is worst overall, but A is worst in objective variables
+\vspace{2.5pt}
+\item Committee rejects A in Round 1 and accepts B, who is worse than A
+\vspace{2.5pt}
+\item By assuming $h$ hours to read application file and $w$ hourly wage, and calculating model's $\overline{P(\text{Success})}$ induced by all possible $N_T$, can put dollar value on success
+\vspace{5pt}
+\end{itemize}
+\end{itemize}
+\hyperlink{conc}{\beamerskipbutton{Conclusion}}
+\end{frame}
+
+\begin{frame}[label=e]
+\frametitle{A2.1:\ Extensions}
+\begin{itemize}
+\item \textbf{Extension 1:}\ Create matriculation score uncorrelated with $P(\text{Success})$
+\vspace{5pt}
+\begin{itemize}
+\item For accepted applicants, use matriculation predictors in essays/rec letters
+\vspace{5pt}
+\item Can help committee find ``people that we can afford" (\textit{Moneyball}) \nocite{lewis2004}
+\vspace{5pt}
+\end{itemize}
+\item \textbf{Extension 2:}\ Relax assumption that committee maximizes $P(\text{Success})$
+\vspace{5pt}
+\begin{itemize}
+\item Instead maximize convex combination of $P(\text{Success})$ and other objectives
+\vspace{5pt}
+\item \textbf{Example:}\ Committee may want diverse cohort (e.g.\ across fields): $\alpha P(\text{Success})+(1-\alpha)\text{Diversity}$, where $\alpha\in[0,1]$ can be estimated
+\vspace{5pt}
+\end{itemize}
+\item \textbf{Extension 3:}\ Multiyear models (see Appendix 2.2)
+\vspace{5pt}
+\begin{itemize}
+\item Two-round models repeat over infinite horizon with discounting
+\vspace{5pt}
+\item States contain info about past years/rounds, and committee values future years/rounds (memory includes matriculation score and diversity)
+\vspace{5pt}
+\end{itemize}
+\end{itemize}
+\hyperlink{conc}{\beamerskipbutton{Conclusion}}
+\end{frame}
+
+\begin{frame}[label=mdg]
+\frametitle{A2.2:\ Multiyear Decision Graph}
+\begin{figure}
+\centering
+\vspace{-5pt}
+\includegraphics[totalheight=.8\textheight]{figures/Decision Graph Multiyear}
+\vspace{-5pt}
+\end{figure}
+\hyperlink{conc}{\beamerskipbutton{Conclusion}}
+\end{frame}
+
+\begin{frame}[label=mmm]
+\frametitle{A2.2:\ Multiyear Memory (Matriculation)}
+\begin{itemize}
+\item Suppose committee maximizes discounted ``lifetime" cohort success
+\vspace{10pt}
+\item Respecify $P(y_2^*=S|t)$, where $t=$ year, as $L(y_2^*=S|\overline{q},M,c_{-1})$
+\vspace{5pt}
+\begin{itemize}
+\item $\overline{q}=$ current year's average surviving applicant quality (i.e.\ average $P(\text{Success})$)
+\vspace{5pt}
+\item $M=$ current year's number of surviving applicants
+\vspace{5pt}
+\item $c_{-1}=$ previous year's cohort size
+\vspace{5pt}
+\item $L(\text{Cutoff}_2)$ increases in all three. In particular, in increases in $c_{-1}$ because committee must keep number of total students in program relatively constant
+\vspace{10pt}
+\end{itemize}
+\item What information available at start of Round 2 determines $c$?
+\vspace{5pt}
+\begin{itemize}
+\item \textbf{Always:}\ $\overline{m}=$ average surviving applicant matriculation score
+\vspace{5pt}
+\item \textbf{If and only if $\boldsymbol{d_2=A}$:}\ $m=$ applicant's matriculation score
+\vspace{5pt}
+\end{itemize}
+\end{itemize}
+\hyperlink{conc}{\beamerskipbutton{Conclusion}}
+\end{frame}
+
+\begin{frame}[label=mdm]
+\frametitle{A2.2:\ Multiyear Dynamics (Matriculation)}
+\begin{theorem}[\href{https://jeremyarosen.com/papers/grad_admissions_proofs.pdf}{\underline{Proof}}]
+Success probability equal, an applicant's Round 2 acceptance probability \\ is strictly increasing in their matriculation score.
+\end{theorem}
+\vspace{2.5pt}
+\begin{itemize}
+\item With memory, optimal dynamic decision may not equal optimal myopic one
+\vspace{5pt}
+\begin{itemize}
+\item May accept applicant with high $m$ even if $P(\text{Success})<L(\text{Cutoff}_2)$
+\vspace{5pt}
+\item High $m$ means high $\overline{F}_{c|m}$, which means high $\mathbb{E}[L(\text{Cutoff}_2)']$ and future EV
+\vspace{5pt}
+\item Accepting applicants who will matriculate helps avoid future TA shortages, and accepting more applicants next year is undesirable if there's any risk aversion
+\vspace{10pt}
+\end{itemize}
+\item Harder to estimate since multiyear problem has no closed-form solution
+\vspace{5pt}
+\begin{itemize}
+\item Reduced-form results and factor analysis can help reduce dimensionality
+\vspace{5pt}
+\end{itemize}
+\end{itemize}
+\hyperlink{conc}{\beamerskipbutton{Conclusion}}
+\end{frame}
+
+\begin{frame}[label=mmmr2]
+\frametitle{A2.2:\ Multiyear Model (Matriculation), Round 2}
+\footnotesize
+\begin{equation*}
+v_2(x,z,m,\overline{m},\overline{q},M,c_{-1},\epsilon_2) = \max_{d_2\in\{A,R\}}u_2(x,z,m,\overline{m},\overline{q},M,c_{-1},d_2)+\epsilon_2(d_2), \: \text{such that:}
+\end{equation*}
+\begin{multline*}
+u_2(x,z,m,\overline{m},\overline{q},M,c_{-1},d_2) = \{P(y=S|x,z)+\beta\mathbb{E}[v_1(x',t',c,{\epsilon_1}')|m,\overline{m}]\}\mathds{1}(d_2=A) \\
++\{L(y_2^*=S|\overline{q},M,c_{-1})+\beta\mathbb{E}[v_1(x',t',c,{\epsilon_1}')|\overline{m}]\}\mathds{1}(d_2=R), \: \text{such that:}
+\end{multline*}
+\begin{multline*}
+\!\!\!\!\!\!\!\!\mathbb{E}[v_1(x',t',c,{\epsilon_1}')|(m),\overline{m}] = \int_c\int_{t'}\int_{x'}\sigma\log\bigg(\sum_{{d_1}'\in\{T,R\}}e^{u_1(x',t',c,{d_1}')/\sigma}\bigg)dF_x(x')dF_t(t')dF_{c|(m),\overline{m}}(c|(m),\overline{m})
+\end{multline*}
+\normalsize
+\textbf{Conditional Choice Probabilities:}
+\footnotesize
+\begin{equation*}
+P(d_2|x,z,m,\overline{m},\overline{q},M,c_{-1}) = \frac{\exp(u_2(x,z,m,\overline{m},\overline{q},M,c_{-1},d_2)/\sigma)}{\sum_{\widetilde{d_2}\in\{A,R\}}\exp(u_2(x,z,m,\overline{m},\overline{q},M,c_{-1},\widetilde{d_2})/\sigma)}
+\end{equation*}
+\hyperlink{conc}{\beamerskipbutton{Conclusion}}
+\end{frame}
+
+\begin{frame}[label=mmmr1]
+\frametitle{A2.2:\ Multiyear Model (Matriculation), Round 1}
+\footnotesize
+\begin{equation*}
+v_1(x,t,c_{-1},\epsilon_1) = \max_{d_1\in\{T,R\}}u_1(x,t,c_{-1},d_1)+\epsilon_1(d_1), \: \text{such that:}
+\end{equation*}
+\begin{multline*}
+u_1(x,t,c_{-1},d_1) = \mathbb{E}[v_2(x,z,m,\overline{m},\overline{q},M,c_{-1},\epsilon_2)|x,c_{-1}]\mathds{1}(d_1=T) \\
++\{L(y_1^*=S|t)+\beta\mathbb{E}[v_1(x',t',c,{\epsilon_1}')|\overline{m}]\}\mathds{1}(d_1=R), \: \text{such that:}
+\end{multline*}
+\begin{multline*}
+\mathbb{E}[v_2(x,z,m,\overline{m},\overline{q},M,c_{-1},\epsilon_2)|x,c_{-1}] = \\ \int_{\widetilde M}\int_{\widetilde{\overline{q}}}\int_{\widetilde{\overline{m}}}\int_{\widetilde m}\int_{\widetilde z}\sigma\log\bigg(\sum_{\widetilde{d_2}\in\{A,R\}}e^{u_2(x,\widetilde z,\widetilde m,\widetilde{\overline{m}},\widetilde{\overline{q}},\widetilde M,c_{-1},\widetilde{d_2})/\sigma}\bigg)dF_{z|x}(\widetilde z|x)dF_{m|x}(\widetilde m|x)dF_{\overline m}(\widetilde{\overline{m}})dF_{\overline q}(\widetilde{\overline{q}})dF_M(\widetilde M)
+\end{multline*}
+\normalsize
+\textbf{Conditional Choice Probabilities:}
+\footnotesize
+\begin{equation*}
+P(d_1|x,t,c_{-1}) = \frac{\exp(u_1(x,t,c_{-1},d_1)/\sigma)}{\sum_{\widetilde{d_1}\in\{T,R\}}\exp(u_1(x,t,c_{-1},\widetilde{d_1})/\sigma)}
+\end{equation*}
+\hyperlink{conc}{\beamerskipbutton{Conclusion}}
+\end{frame}
+
+\begin{frame}[label=mmp1]
+\frametitle{A2.2:\ Multiyear (Matriculation) Parameterization 1}
+\textbf{Unrestricted CCPs:}
+\begin{equation*}
+P_{d_1} = P\big(d_1=T\big|x,t,c_{-1};\theta_T\big) = \frac{\exp(f_T(x,t,c_{-1})\theta_T)}{1+\exp(f_T(x,t,c_{-1})\theta_T)}
+\end{equation*}
+\begin{equation*}
+P_{d_2} = P\big(d_2=A\big|x,z,m,\overline{m},\overline{q},M,c_{-1};\theta_A\big) = \frac{\exp(f_A(x,z,m,\overline{m},\overline{q},M,c_{-1})\theta_A)}{1+\exp(f_A(x,z,m,\overline{m},\overline{q},M,c_{-1})\theta_A)}
+\end{equation*}
+\textbf{Success Probability:}
+\begin{equation*}
+P_y = P\big(y = S\big|x,z;\theta_S\big) = \frac{\exp(f_S(x,z)\theta_S)}{1+\exp(f_S(x,z)\theta_S)}
+\end{equation*}
+\textbf{Cutoff Levels:}
+\begin{equation*}
+L_{y_1^*} = L\big(y_1^* = S\big|t;\theta_{S_1^*}\big) = f_{S_1^*}(t)\theta_{S_1^*}
+\end{equation*}
+\begin{equation*}
+L_{y_2^*} = L\big(y_2^* = S\big|\overline{q},M,c_{-1};\theta_{S_2^*}\big) = f_{S_2^*}(\overline{q},M,c_{-1})\theta_{S_2^*}
+\end{equation*}
+\hyperlink{conc}{\beamerskipbutton{Conclusion}}
+\end{frame}
+
+\begin{frame}[label=mmp21]
+\frametitle{A2.2:\ Multiyear (Matriculation) Parameterization 2.1}
+\begin{itemize}
+\item[$\bigstar$] Assume $(x,t)$ mutually independent, and next year independent of current year:
+\end{itemize}
+\scriptsize
+\begin{multline*}
+\mathbb{E}[v_1(x',t',c,{\epsilon_1}')|(m),\overline{m}] = \int_c\int_{t'}\int_{x'}\sigma\log\bigg(\sum_{{d_1}'\in\{T,R\}}e^{u_1(x',t',c,{d_1}')/\sigma}\bigg)dF_x(x')dF_t(t')dF_{c|(m),\overline{m}}(c|(m),\overline{m}) \\
+\!\!\!\!\!\!\!\!\!= \int_c\int_{{t_1}'}\cdots\int_{{t_{J_t}}'}\int_{{x_1}'}\cdots\int_{{x_{J_x}}'}\bigg[\cdot\bigg]dF_{x,1}({x_1}'|{x_2}',\dots,{x_{J_x}}')\cdots dF_{x,{J_x}}({x_{J_x}}')dF_{t,1}({t_1}'|{t_2}',\dots,{t_{J_t}}')\cdots dF_{t,{J_t}}({t_{J_t}}')dF_{c|(m),\overline{m}}(c|(m),\overline{m})
+\end{multline*}
+\normalsize
+\begin{itemize}
+\item \textbf{Continuous:}\ $f_x(x_j;\beta_{F_{x,j}},\sigma^2_{F_{x,j}}) = \frac{1}{\sqrt{2\pi\sigma^2_{F_{x,j}}}}\exp\Big[\frac{-1}{2\sigma^2_{F_{x,j}}}(x_j-\beta_{F_{x,j}})^2\Big]$
+\item \textbf{Binary:}\ $P(x_j=1;\theta_{F_{x,j}}) = \frac{\exp\big(\theta_{F_{x,j}}\big)}{1+\exp\big(\theta_{F_{x,j}}\big)}$
+\item \textbf{Multinomial:}\ $P(x_j=(k\neq K);\theta_{F_{x,j}^k}) = \frac{\exp\Big(\theta_{F_{x,j}^k}\Big)}{1+\sum_{\ell=1}^{K-1}\exp\Big(\theta_{F_{x,j}^\ell}\Big)}$
+\end{itemize}
+\hyperlink{conc}{\beamerskipbutton{Conclusion}}
+\end{frame}
+
+\begin{frame}[label=mmp22]
+\frametitle{A2.2:\ Multiyear (Matriculation) Parameterization 2.2}
+\begin{itemize}
+\item[$\bigstar$] Assume $(z,m,\overline{m},\overline{q},M)$ mutually independent such that $(z,m)|x$:
+\end{itemize}
+\scriptsize
+\begin{multline*}
+\mathbb{E}[v_2(x,z,m,\overline{m},\overline{q},M,c_{-1},\epsilon_2)|x,c_{-1}] = \\
+\int_{\widetilde M}\int_{\widetilde{\overline{q}}}\int_{\widetilde{\overline{m}}}\int_{\widetilde m}\int_{\widetilde z}\sigma\log\bigg(\sum_{\widetilde{d_2}\in\{A,R\}}e^{u_2(x,\widetilde z,\widetilde m,\widetilde{\overline{m}},\widetilde{\overline{q}},\widetilde M,c_{-1},\widetilde{d_2})/\sigma}\bigg)dF_{z|x}(\widetilde z|x)dF_{m|x}(\widetilde m|x)dF_{\overline m}(\widetilde{\overline{m}})dF_{\overline q}(\widetilde{\overline{q}})dF_M(\widetilde M) \\
+= \int_{\widetilde M}\int_{\widetilde{\overline{q}}}\int_{\widetilde{\overline{m}}}\int_{\widetilde m}\int_{\widetilde{z_1}}\cdots\int_{\widetilde{z_{J_z}}}\bigg[\cdot\bigg]dF_{z|x,1}(\widetilde{z_1}|\widetilde{z_2},\dots,\widetilde{z_{J_z}},x)\cdots dF_{z|x,{J_z}}(\widetilde{z_{J_z}}|x)dF_{m|x}(\widetilde m|x)dF_{\overline m}(\widetilde{\overline{m}})dF_{\overline q}(\widetilde{\overline{q}})dF_M(\widetilde M)
+\end{multline*}
+\normalsize
+\begin{itemize}
+\item \textbf{Continuous:}\ \footnotesize $f_{z|x}(z_j|x;\beta_{F_{z|x,j}},\sigma^2_{F_{z|x,j}}) = \frac{1}{\sqrt{2\pi\sigma^2_{F_{z|x,j}}}}\exp\Big[\frac{-1}{2\sigma^2_{F_{z|x,j}}}(z_j-g(x)\beta_{F_{z|x,j}})^2\Big]$ \normalsize
+\item \textbf{Binary:}\ \footnotesize $P(z_j=1|x;\theta_{F_{z|x,j}}) = \frac{\exp\big(g(x)\theta_{F_{z|x,j}}\big)}{1+\exp\big(g(x)\theta_{F_{z|x,j}}\big)}$ \normalsize
+\item \textbf{Multinomial:}\ \footnotesize $P(z_j=(k\neq K)|x;\theta_{F_{z|x,j}^k}) = \frac{\exp\Big(g(x)\theta_{F_{z|x,j}^k}\Big)}{1+\sum_{\ell=1}^{K-1}\exp\Big(g(x)\theta_{F_{z|x,j}^\ell}\Big)}$
+\end{itemize}
+\hyperlink{conc}{\beamerskipbutton{Conclusion}}
+\end{frame}
+
+\begin{frame}[label=mml]
+\frametitle{A2.2:\ Multiyear (Matriculation) Likelihood}
+\footnotesize
+\begin{multline*}
+\mathcal{L}_N^U(\theta) = \prod_{n=1}^{N_T}f_x(x_n;\theta_{F_x})f_t(t_n;\theta_{F_t})f_{z|x}(z_n|x_n;\theta_{F_{z|x}})f_{m|x}(m_n|x_n;\theta_{F_{m|x}})f_{\overline m}(\overline m_n;\theta_{F_{\overline m}})f_{\overline q}(\overline q_n;\theta_{F_{\overline q}})f_M(M_n;\theta_{F_M}) \\
+f_{c|m,\overline m}(c_n|m_n,\overline m_n;\theta_{F_{c|m,\overline m}})P_{d_{1,n}}(\theta_T)P_{d_{2,n}}(\theta_A)^{\mathds{1}(d_{2,n}=A)}(1-P_{d_{2,n}}(\theta_A))^{\mathds{1}(d_{2,n}=R)}P_{y_n}(\theta_S)^{\mathds{1}(y_n=S)}(1-P_{y_n}(\theta_S))^{\mathds{1}(y_n=F)} \\
+\prod_{n=N_T+1}^Nf_x(x_n;\theta_{F_x})f_t(t_n;\theta_{F_t})f_{z|x}(z_n|x_n;\theta_{F_{z|x}})f_{m|x}(m_n|x_n;\theta_{F_{m|x}})(1-P_{d_{1,n}}(\theta_T))
+\end{multline*}
+\normalsize
+\begin{itemize}
+\item For $\mathcal{L}^R$ and $\mathcal{L}^U$, estimate $\theta_S^U$ with 1st-stage likelihood to get $\overline{q}=$ current year's $\overline{P_{y_n}}$: \\
+$\mathcal{L}_{N_T}^P(\theta_S) = \prod_{n=1}^{N_T}P_{y_n}(\theta_S)^{\mathds{1}(y_n=S)}(1-P_{y_n}(\theta_S))^{\mathds{1}(y_n=F)}$
+\vspace{10pt}
+\item As with year-dynamic model, for $\mathcal{L}_R$, use ($\theta_F^U$,$\theta_S^U$) as initial guess of ($\theta_F^R$,$\theta_S^R$)
+\vspace{10pt}
+\end{itemize}
+\hyperlink{conc}{\beamerskipbutton{Conclusion}}
+\end{frame}
+
+\begin{frame}[label=mmdd]
+\frametitle{A2.2:\ Multiyear Memory and Dynamics (Diversity)}
+\vspace{-3.75pt}
+\begin{itemize}
+\item Let additional state $a=$ any diversity variable affecting success
+\vspace{2.5pt}
+\begin{itemize}
+\item For example, $a=\mathds{1}$(TheoryField); theory is less common than applied
+\vspace{2.5pt}
+\item Let $\overline{a}_{-1}=$ percentage of last year's acceptance set that's theory
+\vspace{2.5pt}
+\item If $|a-\overline{a}_{-1}|$ is small, $P(\text{Success})$ may decrease because future advisor may be too busy (effect may be unidentifiable if program never gets too imbalanced)
+\end{itemize}
+\begin{theorem}[\href{https://jeremyarosen.com/papers/grad_admissions_proofs.pdf}{\underline{Proof}}]
+\small Consider any two applicants, one with $a=1$ and one with $a=0$, but with equal success probabilities and therefore different values of $x$ or $z$. Suppose $P(a'=1)=p>0$. Then for all sufficiently small $p$, the $a=1$ applicant has a strictly greater Round 2 acceptance probability. \normalsize
+\end{theorem}
+\vspace{2.5pt}
+\item Optimal dynamic decision may not equal optimal myopic one. May accept diverse applicant with $P(\text{Success})<L(\text{Cutoff})$ to increase $P(\text{Success})$ of next year's pool
+\vspace{2.5pt}
+\begin{itemize}
+\item Relative to $a=0$, $a=1$ $\Rightarrow$ higher $\overline{F}_{\overline{a}|a}$ $\Rightarrow$ higher $\mathbb{E}[P(\text{Success})']$ and future EV
+\end{itemize}
+\end{itemize}
+\hyperlink{conc}{\beamerskipbutton{Conclusion}}
+\end{frame}
+
+\begin{frame}[label=mmdr2]
+\frametitle{A2.2:\ Multiyear Model (Diversity), Round 2}
+\begin{equation*}
+v_2(x,z,a,\overline{a}_{-1},t,\epsilon_2) = \max_{d_2\in\{A,R\}}u_2(x,z,a,\overline{a}_{-1},t,d_2)+\epsilon_2(d_2), \: \text{such that:}
+\end{equation*}
+\begin{multline*}
+u_2(x,z,a,\overline{a}_{-1},t,d_2) = \{P(y=S|x,z,|a-\overline{a}_{-1}|)+\beta\mathbb{E}[v_1(x',\overline{a},t',\epsilon_1')|a]\}\mathds{1}(d_2=A) \\
++\{L(y_2^*=S|t)+\beta\mathbb{E}[v_1(x',\overline{a},t',\epsilon_1')]\}\mathds{1}(d_2=R), \: \text{such that:}
+\end{multline*}
+\begin{equation*}
+\mathbb{E}[v_1(x',\overline{a},t',\epsilon_1')|a] = \int_{\widetilde{t'}}\int_{\widetilde{\overline{a}}}\int_{\widetilde{x'}}\sigma\log\bigg(\sum_{d_1'\in\{T,R\}}e^{u_1(\widetilde{x'},\widetilde{\overline{a}},\widetilde{t'},d_1')/\sigma}\bigg)dF_{x'}(\widetilde{x'})dF_{\overline{a}|a}(\widetilde{\overline{a}}|a)dF_{t'}(\widetilde{t'})
+\end{equation*}
+\textbf{Conditional Choice Probabilities:}
+\begin{equation*}
+P(d_2|x,z,a,\overline{a}_{-1},t) = \frac{\exp(u_2(x,z,a,\overline{a}_{-1},t,d_2)/\sigma)}{\sum_{\widetilde{d_2}\in\{A,R\}}\exp(u_2(x,z,a,\overline{a}_{-1},t,\widetilde{d_2})/\sigma)}
+\end{equation*}
+\hyperlink{conc}{\beamerskipbutton{Conclusion}}
+\end{frame}
+
+\begin{frame}[label=mmdr1]
+\frametitle{A2.2:\ Multiyear Model (Diversity), Round 1}
+\vspace{-12.5pt}
+\small
+\begin{equation*}
+v_1(x,\overline{a}_{-1},t,\epsilon_1) = \max_{d_1\in\{T,R\}}u_1(x,\overline{a}_{-1},t,d_1)+\epsilon_1(d_1), \: \text{such that:}
+\end{equation*}
+\begin{multline*}
+u_1(x,\overline{a}_{-1},t,d_1) = \mathbb{E}[v_2(x,z,a,\overline{a}_{-1},t,\epsilon_2)|x,\overline{a}_{-1},t]\mathds{1}(d_1=T) \\
++\{L(y_1^*=S|t)+\beta\mathbb{E}[v_1(x',\overline{a},t',\epsilon_1')]\}\mathds{1}(d_1=R), \: \text{such that:}
+\end{multline*}
+\begin{equation*}
+\mathbb{E}[v_2(x,z,a,\overline{a}_{-1},t,\epsilon_2)|x,\overline{a}_{-1},t] = \int_{\widetilde a}\int_{\widetilde z}\sigma\log\bigg(\sum_{\widetilde{d_2}\in{A,R}}e^{u_2(x,\widetilde z,\widetilde a,\overline{a}_{-1},t,\widetilde{d_2})/\sigma}\bigg)dF_{z|x}(\widetilde z|x)dF_a(\widetilde a)
+\end{equation*}
+\begin{equation*}
+\mathbb{E}[v_1(x',\overline{a},t',\epsilon_1')] = \int_{\widetilde{t'}}\int_{\widetilde{\overline{a}}}\int_{\widetilde{x'}}\sigma\log\bigg(\sum_{d_1'\in\{T,R\}}e^{u_1(\widetilde{x'},\widetilde{\overline{a}},\widetilde{t'},d_1')/\sigma}\bigg)dF_{x'}(\widetilde{x'})dF_{\overline{a}}(\widetilde{\overline{a}})dF_{t'}(\widetilde{t'})
+\end{equation*}
+\normalsize
+\textbf{Conditional Choice Probabilities:}
+\small
+\begin{equation*}
+P(d_1|x,\overline{a}_{-1},t) = \frac{\exp(u_1(x,\overline{a}_{-1},t,d_1)/\sigma)}{\sum_{\widetilde{d_1}\in\{T,R\}}\exp(u_1(x,\overline{a}_{-1},t,\widetilde{d_1})/\sigma)}
+\end{equation*}
+\hyperlink{conc}{\beamerskipbutton{Conclusion}}
+\end{frame}
+
+\begin{frame}[label=mdp1]
+\frametitle{A2.2:\ Multiyears (Diversity) Parameterization 1}
+\textbf{Unrestricted CCPs:}
+\begin{equation*}
+P_{d_1} = P\big(d_1=T\big|x,\overline{a}_{-1},t;\theta_T\big) = \frac{\exp(f_T(x,\overline{a}_{-1},t)\theta_T)}{1+\exp(f_T(x,\overline{a}_{-1},t)\theta_T)}
+\end{equation*}
+\begin{equation*}
+P_{d_2} = P\big(d_2=A\big|x,z,a,\overline{a}_{-1},t;\theta_A\big) = \frac{\exp(f_A(x,z,a,\overline{a}_{-1},t)\theta_A)}{1+\exp(f_A(x,z,a,\overline{a}_{-1},t)\theta_A)}
+\end{equation*}
+\textbf{Success Probability:}
+\begin{equation*}
+P_y = P\big(y = S\big|x,z,|a-\overline{a}_{-1}|;\theta_S\big) = \frac{\exp(f_S(x,z,|a-\overline{a}_{-1}|)\theta_S)}{1+\exp(f_S(x,z,|a-\overline{a}_{-1}|)\theta_S)}
+\end{equation*}
+\textbf{Cutoff Levels:}
+\begin{equation*}
+L_{y_1^*} = L\big(y_1^* = S\big|t;\theta_{S_1^*}\big) = f_{S_1^*}(t)\theta_{S_1^*}
+\end{equation*}
+\begin{equation*}
+L_{y_2^*} = L\big(y_2^* = S\big|t;\theta_{S_2^*}\big) = f_{S_2^*}(t)\theta_{S_2^*}
+\end{equation*}
+\hyperlink{conc}{\beamerskipbutton{Conclusion}}
+\end{frame}
+
+\begin{frame}[label=mdp21]
+\frametitle{A2.2:\ Multiyear (Diversity) Parameterization 2.1}
+\begin{itemize}
+\item[$\bigstar$] Assume $(x,\overline{a},t)$ mutually independent such that $\overline{a}|a$, and $t'$ independent of $t$:
+\end{itemize}
+\footnotesize
+\begin{multline*}
+\mathbb{E}[v_1(x',\overline{a},t',\epsilon_1')|a] = \int_{\widetilde{t'}}\int_{\widetilde{\overline{a}}}\int_{\widetilde{x'}}\sigma\log\bigg(\sum_{d_1'\in\{T,R\}}e^{u_1(\widetilde{x'},\widetilde{\overline{a}},\widetilde{t'},d_1')/\sigma}\bigg)dF_{x'}(\widetilde{x'})dF_{\overline{a}|a}(\widetilde{\overline{a}}|a)dF_{t'}(\widetilde{t'}) = \\
+\!\!\!\!\!\!\int_{\widetilde{t_1'}}\cdots\int_{\widetilde{t_{J_t}'}}\int_{\widetilde{\overline{a}}}\int_{\widetilde{x_1'}}\cdots\int_{\widetilde{x_{J_x}'}}\bigg[\cdot\bigg]F_{x,1}({x_1}'|{x_2}',\dots,{x_{J_x}}')\cdots dF_{x,{J_x}}({x_{J_x}}')dF_{\overline{a}|a}(\widetilde{\overline{a}}|a)dF_{t,1}({t_1}'|{t_2}',\dots,{t_{J_t}}')\cdots dF_{t,{J_t}}({t_{J_t}}')
+\end{multline*}
+\normalsize
+\begin{itemize}
+\item \textbf{Continuous:}\ $f_x(x_j;\beta_{F_{x,j}},\sigma^2_{F_{x,j}}) = \frac{1}{\sqrt{2\pi\sigma^2_{F_{x,j}}}}\exp\Big[\frac{-1}{2\sigma^2_{F_{x,j}}}(x_j-\beta_{F_{x,j}})^2\Big]$
+\item \textbf{Binary:}\ $P(x_j=1;\theta_{F_{x,j}}) = \frac{\exp\big(\theta_{F_{x,j}}\big)}{1+\exp\big(\theta_{F_{x,j}}\big)}$
+\item \textbf{Multinomial:}\ $P(x_j=(k\neq K);\theta_{F_{x,j}^k}) = \frac{\exp\Big(\theta_{F_{x,j}^k}\Big)}{1+\sum_{\ell=1}^{K-1}\exp\Big(\theta_{F_{x,j}^\ell}\Big)}$
+\end{itemize}
+\hyperlink{conc}{\beamerskipbutton{Conclusion}}
+\end{frame}
+
+\begin{frame}[label=mdp22]
+\frametitle{A2.2:\ Multiyear (Diversity) Parameterization 2.2}
+\begin{itemize}
+\item[$\bigstar$] Assume $(z,a)$ independent, such that $z|x$:
+\end{itemize}
+\begin{multline*}
+\mathbb{E}[v_2(x,z,a,\overline{a}_{-1},t,\epsilon_2)|x,\overline{a}_{-1},t] = \int_{\widetilde a}\int_{\widetilde z}\sigma\log\bigg(\sum_{\widetilde{d_2}\in{A,R}}e^{u_2(x,\widetilde z,\widetilde a,\overline{a}_{-1},t,\widetilde{d_2})/\sigma}\bigg)dF_{z|x}(\widetilde z|x)dF_a(\widetilde a) \\
+= \int_{\widetilde a}\int_{\widetilde{z_1}}\cdots\int_{\widetilde{z_J}}\bigg[\cdot\bigg]dF_1(\widetilde{z_1}|\widetilde{z_2},\dots\widetilde{z_J},x)\cdots dF_J(\widetilde{z_J}|x)dF_a(\widetilde a)
+\end{multline*}
+\begin{itemize}
+\item \textbf{Continuous:}\ \footnotesize $f_{z|x}(z_j|x;\beta_{F_{z|x,j}},\sigma^2_{F_{z|x,j}}) = \frac{1}{\sqrt{2\pi\sigma^2_{F_{z|x,j}}}}\exp\Big[\frac{-1}{2\sigma^2_{F_{z|x,j}}}(z_j-g(x)\beta_{F_{z|x,j}})^2\Big]$ \normalsize
+\item \textbf{Binary:}\ \footnotesize $P(z_j=1|x;\theta_{F_{z|x,j}}) = \frac{\exp\big(g(x)\theta_{F_{z|x,j}}\big)}{1+\exp\big(g(x)\theta_{F_{z|x,j}}\big)}$ \normalsize
+\item \textbf{Multinomial:}\ \footnotesize $P(z_j=(k\neq K)|x;\theta_{F_{z|x,j}^k}) = \frac{\exp\Big(g(x)\theta_{F_{z|x,j}^k}\Big)}{1+\sum_{\ell=1}^{K-1}\exp\Big(g(x)\theta_{F_{z|x,j}^\ell}\Big)}$
+\end{itemize}
+\hyperlink{conc}{\beamerskipbutton{Conclusion}}
+\end{frame}
+
+\begin{frame}[label=mdl]
+\frametitle{A2.2:\ Multiyear (Diversity) Likelihood}
+\begin{multline*}
+\!\!\!\!\!\!\!\!\!\!\mathcal{L}_N^U(\theta) = \prod_{n=1}^{N_A}f_x(x_n;\theta_{F_x})f_t(t_n;\theta_{F_t})f_{z|x}(z_n|x_n;\theta_{F_{z|x}})f_a(a)f_{\overline{a}}(\overline{a})f_{\overline{a}|a}(\overline{a}|a)P_{d_{2,n}}P_{y_n}^{\mathds{1}(y_n=S)}(1-P_{y_n})^{\mathds{1}(y_n=F)} \\
+\prod_{n={N_A}+1}^{N_{T,R}}f_x(x_n;\theta_{F_x})f_t(t_n;\theta_{F_t})f_{z|x}(z_n|x_n;\theta_{F_{z|x}})f_a(a)f_{\overline{a}}(\overline{a})(1-P_{d_{2,n}})P_{y_n}^{\mathds{1}(y_n=S)}(1-P_{y_n})^{\mathds{1}(y_n=F)} \\
+\prod_{n=N_{T,R}+1}^Nf_x(x_n;\theta_{F_x})f_t(t_n;\theta_{F_t})f_{z|x}(z_n|x_n;\theta_{F_{z|x}})f_a(a)f_{\overline{a}}(\overline{a})(1-P_{d_{1,n}})
+\end{multline*}
+\begin{itemize}
+\item Estimate $f_{\overline{a}|a}(\overline{a}|a)$ on $N_A$ accepted applicants only
+\vspace{5pt}
+\item As with year-dynamic model, for $\mathcal{L}_R$, use ($\theta_F^U$,$\theta_S^U$) as initial guess of ($\theta_F^R$,$\theta_S^R$)
+\vspace{5pt}
+\end{itemize}
+\hyperlink{conc}{\beamerskipbutton{Conclusion}}
+\end{frame}
+
+\begin{frame}[label=mbp]
+\frametitle{A3:\ Means by Program}
+\centering
+\renewcommand{\thetable}{\arabic{table}a}
+\captionof{table}{Means by Program}
+\vspace{-7.5pt}
+\begin{minipage}[t]{0.55\textwidth}
+\makebox[\linewidth] {
+\begin{adjustbox}{totalheight=.7\textheight}
+  \input{tables/Means by Program}
+\end{adjustbox}
+}
+\end{minipage}%
+\hfill
+\begin{minipage}[c][0.8\textheight][c]{0.45\textwidth}
+\begin{itemize}
+\item \textbf{Economics Highest:}\ Accept, IntAsian, GREQuantPct, EliteForeign, OtherForeign, \#ProlificRecom, MissingUgradGPA\!
+\item \textbf{Economics Lowest:}\ CovidYear, USAfrHispNat, GREVerbalPct, GREAnalyticPct, EliteUSUni, WorkExper, MissingGRE, MissingTOEFL/IELTS
+\end{itemize}
+\end{minipage}
+\raggedright
+\hyperlink{rfs}{\beamerskipbutton{Reduced-Form Summary}}
+\end{frame}
+
+\begin{frame}[label=mbppa1]
+\frametitle{A3:\ Means by Program, Accept = 1}
+\addtocounter{framenumber}{-1}
+\centering
+\addtocounter{table}{-1}
+\renewcommand{\thetable}{\arabic{table}b}
+\captionof{table}{Means by Program, Accept = 1}
+\vspace{-7.5pt}
+\begin{minipage}[t]{0.55\textwidth}
+\makebox[\linewidth] {
+\begin{adjustbox}{totalheight=.7\textheight}
+  \input{tables/Means by Program, Accept = 1}
+\end{adjustbox}
+}
+\end{minipage}%
+\hfill
+\begin{minipage}[c][0.8\textheight][c]{0.45\textwidth}
+\begin{itemize}
+\item \textbf{Economics Highest:}\ IntAsian, GREQuantPct, UGradGPA, TOEFL/IELTS, EliteForeign, \#ProlificRecom, MissingUgradGPA\!
+\item \textbf{Economics Lowest:}\ CovidYear, WinsorAge, Female, USAfrHispNat, WorkExper, MissingGRE, MissingTOEFL/IELTS\!\!\!
+\end{itemize}
+\end{minipage}
+\raggedright
+\hyperlink{rfs}{\beamerskipbutton{Reduced-Form Summary}}
+\end{frame}
+
+\begin{frame}[label=cm]
+\frametitle{A3:\ Correlation Matrix}
+\begin{table}[htbp]
+\begin{center}
+\caption{Correlation Matrix}
+\vspace{5pt}
+\begin{adjustbox}{width=1\textwidth}
+\resizebox*{\dimexpr\textwidth-0\baselineskip\relax}{!}{
+\input{tables/Correlation Matrix}}
+\end{adjustbox}
+\end{center}
+\end{table}
+\hyperlink{rfs}{\beamerskipbutton{Reduced-Form Summary}}
+\end{frame}
+
+\begin{frame}[label=lrr]
+\frametitle{A3:\ Logistic Regression Results}
+\centering
+\renewcommand{\thetable}{\arabic{table}a}
+\captionof{table}{Logistic Regression Results}
+\vspace{-7.5pt}
+\begin{minipage}[t]{0.3\textwidth}
+\makebox[\linewidth] {
+\begin{adjustbox}{totalheight=.7\textheight}
+  \input{tables/Logistic Regression Results}
+\end{adjustbox}
+}
+\end{minipage}%
+\hfill
+\begin{minipage}[c][0.8\textheight][c]{0.7\textwidth}
+\begin{itemize}
+\item \textbf{Economics Positive ($p<.05$):}\ \\ Female, GREVerbalPct, GREQuantPct, GREAnalyticPct, UgradGPA, EliteUSUni, EliteUSLA, WorkExper, \#ProlificRecom, \#MathCourses
+\vspace{10pt}
+\item \textbf{Economics Negative ($p<.05$):}\ \\ CovidYear, WinsorAge, IntAsian
+\end{itemize}
+\end{minipage}
+\raggedright
+\hyperlink{pllra}{\beamerskipbutton{Post-Lasso Logistic Regression AMEs}}
+\end{frame}
+
+\begin{frame}[label=lra]
+\frametitle{A3:\ Logistic Regression AMEs}
+\addtocounter{framenumber}{-1}
+\centering
+\addtocounter{table}{-1}
+\renewcommand{\thetable}{\arabic{table}b}
+\captionof{table}{Logistic Regression AMEs}
+\vspace{-7.5pt}
+\begin{minipage}[t]{0.3\textwidth}
+\makebox[\linewidth] {
+\begin{adjustbox}{totalheight=.7\textheight}
+  \input{tables/Logistic Regression AMEs}
+\end{adjustbox}
+}
+\end{minipage}%
+\hfill
+\begin{minipage}[c][0.8\textheight][c]{0.7\textwidth}
+\begin{itemize}
+\item \textbf{Economics Positive ($p<.05$):}\ \\ Female, GREVerbalPct, GREQuantPct, GREAnalyticPct, UgradGPA, EliteUSUni, EliteUSLA, WorkExper, \#ProlificRecom, \#MathCourses
+\vspace{10pt}
+\item \textbf{Economics Negative ($p<.05$):}\ \\ CovidYear, WinsorAge, IntAsian
+\end{itemize}
+\end{minipage}
+\raggedright
+\hyperlink{pllra}{\beamerskipbutton{Post-Lasso Logistic Regression AMEs}}
+\end{frame}
+
+\begin{frame}[label=lrrs]
+\frametitle{A3:\ Logistic Regression Results (Synthetic)}
+\centering
+\renewcommand{\thetable}{\arabic{table}a}
+\captionof{table}{Logistic Regression Results (Synthetic)}
+\vspace{-7.5pt}
+\begin{minipage}[t]{0.3\textwidth}
+\makebox[\linewidth] {
+\begin{adjustbox}{totalheight=.7\textheight}
+  \input{tables/Logistic Regression Results Synthetic}
+\end{adjustbox}
+}
+\end{minipage}%
+\hfill
+\begin{minipage}[c][0.8\textheight][c]{0.7\textwidth}
+\begin{itemize}
+\item \textbf{Economics Positive ($p<.05$):}\ \\ GREVerbalPct, GREQuantPct
+\vspace{10pt}
+\item \textbf{Economics Negative ($p<.05$):}\ \\ WinsorAge, TOEFL/IELTS
+\end{itemize}
+\end{minipage}
+\raggedright
+\hyperlink{pllra}{\beamerskipbutton{Post-Lasso Logistic Regression AMEs}}
+\end{frame}
+
+\begin{frame}[label=lras]
+\frametitle{A3:\ Logistic Regression AMEs (Synthetic)}
+\addtocounter{framenumber}{-1}
+\centering
+\addtocounter{table}{-1}
+\renewcommand{\thetable}{\arabic{table}b}
+\captionof{table}{Logistic Regression AMEs (Synthetic)}
+\vspace{-7.5pt}
+\begin{minipage}[t]{0.3\textwidth}
+\makebox[\linewidth] {
+\begin{adjustbox}{totalheight=.7\textheight}
+  \input{tables/Logistic Regression AMEs Synthetic}
+\end{adjustbox}
+}
+\end{minipage}%
+\hfill
+\begin{minipage}[c][0.8\textheight][c]{0.7\textwidth}
+\begin{itemize}
+\item \textbf{Economics Positive ($p<.05$):}\ \\ GREVerbalPct, GREQuantPct
+\vspace{10pt}
+\item \textbf{Economics Negative ($p<.05$):}\ \\ WinsorAge, TOEFL/IELTS
+\end{itemize}
+\end{minipage}
+\raggedright
+\hyperlink{pllra}{\beamerskipbutton{Post-Lasso Logistic Regression AMEs}}
+\end{frame}
+
+\begin{frame}[label=llrr]
+\frametitle{A3:\ Lasso Logistic Regression Results}
+\begin{table}[htbp]
+\begin{center}
+\caption{Lasso Logistic Regression Results}
+\vspace{5pt}
+\begin{adjustbox}{totalheight=.7\textheight}
+\resizebox*{!}{\dimexpr\textheight-3.5\baselineskip\relax}{
+\input{tables/Lasso Logistic Regression Results}}
+\end{adjustbox}
+\end{center}
+\end{table}
+\hyperlink{pllra}{\beamerskipbutton{Post-Lasso Logistic Regression AMEs}}
+\end{frame}
+
+\begin{frame}[label=fpllrr]
+\frametitle{A3:\ Full Post-Lasso Logistic Regression Results}
+\centering
+\renewcommand{\thetable}{\arabic{table}a}
+\captionof{table}{Post-Lasso Logistic Regression Results}
+\vspace{-7.5pt}
+\begin{minipage}[t]{0.3\textwidth}
+\makebox[\linewidth] {
+\begin{adjustbox}{totalheight=.7\textheight}
+  \input{tables/Post-Lasso Logistic Regression Results}
+\end{adjustbox}
+}
+\end{minipage}%
+\hfill
+\begin{minipage}[c][0.8\textheight][c]{0.7\textwidth}
+\begin{itemize}
+\item \textbf{Economics Positive ($p<.05$):}\ \\ Female, GREVerbalPct, GREQuantPct, GREAnalyticPct, UgradGPA, EliteUSUni, EliteUSLA, WorkExper, \#ProlificRecom, \#MathCourses
+\vspace{10pt}
+\item \textbf{Economics Negative ($p<.05$):}\ \\ CovidYear, WinsorAge, IntAsian
+\end{itemize}
+\end{minipage}
+\raggedright
+\hyperlink{pllra}{\beamerskipbutton{Post-Lasso Logistic Regression AMEs}}
+\end{frame}
+
+\begin{frame}[label=fpllra]
+\frametitle{A3:\ Full Post-Lasso Logistic Regression AMEs}
+\addtocounter{framenumber}{-1}
+\centering
+\addtocounter{table}{-1}
+\renewcommand{\thetable}{\arabic{table}b}
+\captionof{table}{Post-Lasso Logistic Regression AMEs}
+\vspace{-7.5pt}
+\begin{minipage}[t]{0.3\textwidth}
+\makebox[\linewidth] {
+\begin{adjustbox}{totalheight=.7\textheight}
+  \input{tables/Post-Lasso Logistic Regression AMEs}
+\end{adjustbox}
+}
+\end{minipage}%
+\hfill
+\begin{minipage}[c][0.8\textheight][c]{0.7\textwidth}
+\begin{itemize}
+\item \textbf{Economics Positive ($p<.05$):}\ \\ Female, GREVerbalPct, GREQuantPct, GREAnalyticPct, UgradGPA, EliteUSUni, EliteUSLA, WorkExper, \#ProlificRecom, \#MathCourses
+\vspace{10pt}
+\item \textbf{Economics Negative ($p<.05$):}\ \\ CovidYear, WinsorAge, IntAsian
+\end{itemize}
+\end{minipage}
+\raggedright
+\hyperlink{pllra}{\beamerskipbutton{Post-Lasso Logistic Regression AMEs}}
+\end{frame}
+
+\begin{frame}[label=enlrr]
+\frametitle{A3:\ Elastic-Net Logistic Regression Results}
+\begin{table}[htbp]
+\begin{center}
+\caption{Elastic-Net Logistic Regression Results}
+\vspace{5pt}
+\begin{adjustbox}{totalheight=.7\textheight}
+\resizebox*{!}{\dimexpr\textheight-3.5\baselineskip\relax}{
+\input{tables/Elastic-Net Logistic Regression Results}}
+\end{adjustbox}
+\end{center}
+\end{table}
+\hyperlink{pllra}{\beamerskipbutton{Post-Lasso Logistic Regression AMEs}}
+\end{frame}
+
+\begin{frame}[label=emm]
+\frametitle{A3:\ Economics Means (Matriculation)}
+\begin{table}[htbp]
+\begin{center}
+\captionof{table}{Economics Means (Matriculation)}
+\vspace{5pt}
+\begin{adjustbox}{totalheight=.7\textheight}
+\resizebox*{!}{\dimexpr\textheight-3.5\baselineskip\relax}{
+\input{tables/IM Economics Means}}
+\end{adjustbox}
+\end{center}
+\end{table}
+\hyperlink{rfs}{\beamerskipbutton{Reduced-Form Summary}}
+\end{frame}
+
+\begin{frame}[label=cmm]
+\frametitle{A3:\ Correlation Matrix (Matriculation)}
+\begin{table}[htbp]
+\begin{center}
+\caption{Correlation Matrix (Matriculation)}
+\vspace{5pt}
+\begin{adjustbox}{width=1\textwidth}
+\resizebox*{\dimexpr\textwidth-0\baselineskip\relax}{!}{
+\input{tables/Correlation Matrix}}
+\end{adjustbox}
+\end{center}
+\end{table}
+\hyperlink{rfs}{\beamerskipbutton{Reduced-Form Summary}}
+\end{frame}
+
+\begin{frame}[label=lrrm]
+\frametitle{A3:\ Logistic Regression Results (Matriculation)}
+\centering
+\renewcommand{\thetable}{\arabic{table}a}
+\captionof{table}{Logistic Regression Results (Matriculation)}
+\vspace{-7.5pt}
+\begin{minipage}[t]{0.45\textwidth}
+\makebox[\linewidth] {
+\begin{adjustbox}{totalheight=.7\textheight}
+  \input{tables/IM Results}
+\end{adjustbox}
+}
+\end{minipage}%
+\hfill
+\begin{minipage}[c][0.8\textheight][c]{0.55\textwidth}
+\begin{itemize}
+\item \textbf{Positive ($p<.05$):}\ None
+\vspace{10pt}
+\item \textbf{Negative ($p<.05$):}\ UgradGPA, WorkExper, AdvMath, MissingUgradGPA
+\end{itemize}
+\end{minipage}
+\raggedright
+\hyperlink{pllra}{\beamerskipbutton{Post-Lasso Logistic Regression AMEs}}
+\end{frame}
+
+\begin{frame}[label=wtrd]
+\frametitle{A3:\ Different Determinants:\ Reject}
+\begin{table}[htbp]
+  \centering
+  \renewcommand{\thetable}{\arabic{table}a}
+  \caption{Wald Test Results (Different)}
+  \vspace{5pt}
+  \begin{adjustbox}{totalheight=.7\textheight}
+\input{tables/Wald Test Results (Different) Presentation}
+  \end{adjustbox}
+  %\label{tab:addlabel}%
+\end{table}%
+\hyperlink{avsa}{\beamerskipbutton{Acceptance vs.\ Success AMEs}}
+\end{frame}
+
+\begin{frame}[label=wtrs]
+\frametitle{A3:\ Same Determinants:\ Don't Reject}
+\addtocounter{framenumber}{-1}
+\begin{table}[htbp]
+  \centering
+  \addtocounter{table}{-1}
+  \renewcommand{\thetable}{\arabic{table}b}
+  \caption{Wald Test Results (Same)}
+  \vspace{5pt}
+  \begin{adjustbox}{totalheight=.7\textheight}
+\input{tables/Wald Test Results (Same) Presentation}
+  \end{adjustbox}
+  %\label{tab:addlabel}%
+\end{table}%
+\hyperlink{avsa}{\beamerskipbutton{Acceptance vs.\ Success AMEs}}
+\end{frame}
+
+\begin{frame}[label=fwtrd]
+\frametitle{A3:\ Full Wald Test Results (Different)}
+\begin{table}[htbp]
+  \centering
+  \renewcommand{\thetable}{\arabic{table}a}
+  \caption{Wald Test Results (Different)}
+  \vspace{5pt}
+  \begin{adjustbox}{totalheight=.7\textheight}
+\input{tables/Wald Test Results (Different)}
+  \end{adjustbox}
+  %\label{tab:addlabel}%
+\end{table}%
+\hyperlink{avsa}{\beamerskipbutton{Acceptance vs.\ Success AMEs}}
+\end{frame}
+
+\begin{frame}[label=fwtrs]
+\frametitle{A3:\ Full Wald Test Results (Same)}
+\addtocounter{framenumber}{-1}
+\begin{table}[htbp]
+  \centering
+  \addtocounter{table}{-1}
+  \renewcommand{\thetable}{\arabic{table}b}
+  \caption{Wald Test Results (Same)}
+  \vspace{5pt}
+  \begin{adjustbox}{totalheight=.7\textheight}
+\input{tables/Wald Test Results (Same)}
+  \end{adjustbox}
+  %\label{tab:addlabel}%
+\end{table}%
+\hyperlink{avsa}{\beamerskipbutton{Acceptance vs.\ Success AMEs}}
+\end{frame}
+
+\begin{frame}[label=wtssd]
+\frametitle{A3:\ Wald Test Summary Statistics (Different)}
+\begin{table}[htbp]
+  \centering
+  \renewcommand{\thetable}{\arabic{table}a}
+  \caption{Wald Test Summary Statistics (Different)}
+  \vspace{5pt}
+  \begin{adjustbox}{totalheight=.7\textheight}
+\input{tables/Wald Test Summary Statistics (Different)}
+  \end{adjustbox}
+  %\label{tab:addlabel}%
+\end{table}%
+\hyperlink{avsa}{\beamerskipbutton{Acceptance vs.\ Success AMEs}}
+\end{frame}
+
+\begin{frame}[label=wtsss]
+\frametitle{A3:\ Wald Test Summary Statistics (Same)}
+\addtocounter{framenumber}{-1}
+\begin{table}[htbp]
+  \centering
+  \addtocounter{table}{-1}
+  \renewcommand{\thetable}{\arabic{table}b}
+  \caption{Wald Test Summary Statistics (Same)}
+  \vspace{5pt}
+  \begin{adjustbox}{totalheight=.7\textheight}
+\input{tables/Wald Test Summary Statistics (Same)}
+  \end{adjustbox}
+  %\label{tab:addlabel}%
+\end{table}%
+\hyperlink{avsa}{\beamerskipbutton{Acceptance vs.\ Success AMEs}}
+\end{frame}
+
+\begin{frame}[label=wtcmd]
+\frametitle{A3:\ Wald Test Correlation Matrix (Different)}
+\begin{table}[htbp]
+  \renewcommand{\thetable}{\arabic{table}a}
+  \caption{Wald Test Correlation Matrix (Different)}
+  \vspace{-5pt}
+  \begin{adjustbox}{width=1\textwidth}
+\input{tables/Wald Test Correlation Matrix (Different)}
+  \end{adjustbox}
+  %\label{tab:addlabel}%
+\end{table}%
+\hyperlink{avsa}{\beamerskipbutton{Acceptance vs.\ Success AMEs}}
+\end{frame}
+
+\begin{frame}[label=wtcms]
+\frametitle{A3:\ Wald Test Correlation Matrix (Same)}
+\addtocounter{framenumber}{-1}
+\begin{table}[htbp]
+  \centering
+  \addtocounter{table}{-1}
+  \renewcommand{\thetable}{\arabic{table}b}
+  \caption{Wald Test Correlation Matrix (Same)}
+  \vspace{-5pt}
+  \begin{adjustbox}{width=1\textwidth}
+\input{tables/Wald Test Correlation Matrix (Same)}
+  \end{adjustbox}
+  %\label{tab:addlabel}%
+\end{table}%
+\hyperlink{avsa}{\beamerskipbutton{Acceptance vs.\ Success AMEs}}
+\end{frame}
+
+\begin{frame}[label=ssss]
+\frametitle{A4:\ Simulated Summary Statistics (Suboptimal)}
+\begin{table}[htbp]
+  \centering
+  \renewcommand{\thetable}{\arabic{table}a}
+  \caption{Simulated Summary Statistics (Suboptimal)}
+  \vspace{5pt}
+  \begin{adjustbox}{totalheight=.7\textheight}
+\input{tables/Simulated Summary Statistics (Suboptimal)}
+  \end{adjustbox}
+  %\label{tab:addlabel}%
+\end{table}%
+\hyperlink{ydues}{\beamerskipbutton{Year-Dynamic Unrestricted Estimates (Suboptimal)}}
+\end{frame}
+
+\begin{frame}[label=ssso]
+\frametitle{A4:\ Simulated Summary Statistics (Optimal)}
+\addtocounter{framenumber}{-1}
+\begin{table}[htbp]
+  \centering
+  \addtocounter{table}{-1}
+  \renewcommand{\thetable}{\arabic{table}b}
+  \caption{Simulated Summary Statistics (Optimal)}
+  \vspace{5pt}
+  \begin{adjustbox}{totalheight=.7\textheight}
+\input{tables/Simulated Summary Statistics (Optimal)}
+  \end{adjustbox}
+  %\label{tab:addlabel}%
+\end{table}%
+\hyperlink{ydueo}{\beamerskipbutton{Year-Dynamic Unrestricted Estimates (Optimal)}}
+\end{frame}
+
+\begin{frame}[label=scms]
+\frametitle{A4:\ Simulated Correlation Matrix (Suboptimal)}
+\begin{table}[htbp]
+  \centering
+  \renewcommand{\thetable}{\arabic{table}a}
+  \caption{Simulated Correlation Matrix (Suboptimal)}
+  \vspace{-5pt}
+  \begin{adjustbox}{width=1\textwidth}
+\input{tables/Simulated Correlation Matrix (Suboptimal)}
+  \end{adjustbox}
+  %\label{tab:addlabel}%
+\end{table}%
+\hyperlink{ydues}{\beamerskipbutton{Year-Dynamic Unrestricted Estimates (Suboptimal)}}
+\end{frame}
+
+\begin{frame}[label=scmo]
+\frametitle{A4:\ Simulated Correlation Matrix (Optimal)}
+\addtocounter{framenumber}{-1}
+\begin{table}[htbp]
+  \centering
+  \addtocounter{table}{-1}
+  \renewcommand{\thetable}{\arabic{table}b}
+  \caption{Simulated Correlation Matrix (Optimal)}
+  \vspace{-5pt}
+  \begin{adjustbox}{width=1\textwidth}
+\input{tables/Simulated Correlation Matrix (Optimal)}
+  \end{adjustbox}
+  %\label{tab:addlabel}%
+\end{table}%
+\hyperlink{ydueo}{\beamerskipbutton{Year-Dynamic Unrestricted Estimates (Optimal)}}
+\end{frame}
+
+\begin{frame}[label=fydues]
+\frametitle{A4:\ Full Year-Dynamic Unrestricted Estimates (Suboptimal)}
+\begin{table}[htbp]
+  \centering
+  \renewcommand{\thetable}{\arabic{table}a}
+  \caption{Year-Dynamic Unrestricted Estimates (Suboptimal)}
+  \vspace{5pt}
+  \begin{adjustbox}{totalheight=.7\textheight}
+\input{tables/Year-Dynamic Unrestricted Estimates (Suboptimal)}
+  \end{adjustbox}
+  %\label{tab:addlabel}%
+\end{table}%
+\hyperlink{ydues}{\beamerskipbutton{Year-Dynamic Unrestricted Estimates (Suboptimal)}}
+\end{frame}
+
+\begin{frame}[label=fydueo]
+\frametitle{A4:\ Full Year-Dynamic Unrestricted Estimates (Optimal)}
+\addtocounter{framenumber}{-1}
+\begin{table}[htbp]
+  \centering
+  \addtocounter{table}{-1}
+  \renewcommand{\thetable}{\arabic{table}b}
+  \caption{Year-Dynamic Unrestricted Estimates (Optimal)}
+  \vspace{5pt}
+  \begin{adjustbox}{totalheight=.7\textheight}
+\input{tables/Year-Dynamic Unrestricted Estimates (Optimal)}
+  \end{adjustbox}
+  %\label{tab:addlabel}%
+\end{table}%
+\hyperlink{ydueo}{\beamerskipbutton{Year-Dynamic Unrestricted Estimates (Optimal)}}
+\end{frame}
+
+\begin{frame}[label=fysres]
+\frametitle{A4:\ Full Year-Static Restricted Estimates (Suboptimal)}
+\begin{table}[htbp]
+  \centering
+  \renewcommand{\thetable}{\arabic{table}a}
+  \caption{Year-Static Restricted Estimates (Suboptimal)}
+  \vspace{5pt}
+  \begin{adjustbox}{totalheight=.7\textheight}
+\input{tables/Year-Static Restricted Estimates (Suboptimal)}
+  \end{adjustbox}
+  %\label{tab:addlabel}%
+\end{table}%
+\hyperlink{ysres}{\beamerskipbutton{Year-Static Restricted Estimates (Suboptimal)}}
+\end{frame}
+
+\begin{frame}[label=fysreo]
+\frametitle{A4:\ Full Year-Static Restricted Estimates (Optimal)}
+\addtocounter{framenumber}{-1}
+\begin{table}[htbp]
+  \centering
+  \addtocounter{table}{-1}
+  \renewcommand{\thetable}{\arabic{table}b}
+  \caption{Year-Static Restricted Estimates (Optimal)}
+  \vspace{5pt}
+  \begin{adjustbox}{totalheight=.7\textheight}
+\input{tables/Year-Static Restricted Estimates (Optimal)}
+  \end{adjustbox}
+  %\label{tab:addlabel}%
+\end{table}%
+\hyperlink{ysreo}{\beamerskipbutton{Year-Static Restricted Estimates (Optimal)}}
+\end{frame}
+
+\begin{frame}[label=ysues]
+\frametitle{A4:\ Year-Static Unrestricted Estimates (Suboptimal)}
+\begin{table}[htbp]
+  \centering
+  \renewcommand{\thetable}{\arabic{table}a}
+  \caption{Year-Static Unrestricted Estimates (Suboptimal)}
+  \vspace{5pt}
+  \begin{adjustbox}{totalheight=.7\textheight}
+\input{tables/Year-Static Unrestricted Estimates (Suboptimal)}
+  \end{adjustbox}
+  %\label{tab:addlabel}%
+\end{table}%
+\hyperlink{ydues}{\beamerskipbutton{Year-Dynamic Unrestricted Estimates (Suboptimal)}}
+\end{frame}
+
+\begin{frame}[label=ysueo]
+\frametitle{A4:\ Year-Static Unrestricted Estimates (Optimal)}
+\addtocounter{framenumber}{-1}
+\begin{table}[htbp]
+  \centering
+  \addtocounter{table}{-1}
+  \renewcommand{\thetable}{\arabic{table}b}
+  \caption{Year-Static Unrestricted Estimates (Optimal)}
+  \vspace{5pt}
+  \begin{adjustbox}{totalheight=.7\textheight}
+\input{tables/Year-Static Unrestricted Estimates (Optimal)}
+  \end{adjustbox}
+  %\label{tab:addlabel}%
+\end{table}%
+\hyperlink{ydueo}{\beamerskipbutton{Year-Dynamic Unrestricted Estimates (Optimal)}}
+\end{frame}
+
+\begin{frame}[label=ydres]
+\frametitle{A4:\ Year-Dynamic Restricted Estimates (Suboptimal)}
+\begin{table}[htbp]
+  \centering
+  \vspace{-5pt}
+  \renewcommand{\thetable}{\arabic{table}a}
+  \caption{Year-Dynamic Restricted Estimates (Suboptimal)}
+  \vspace{5pt}
+  \begin{adjustbox}{totalheight=.7\textheight}
+\input{tables/Year-Dynamic Restricted Estimates (Suboptimal)}
+  \end{adjustbox}
+  %\label{tab:addlabel}%
+\end{table}%
+\hyperlink{ysres}{\beamerskipbutton{Year-Static Restricted Estimates (Suboptimal)}}
+\end{frame}
+
+\begin{frame}[label=ydreo]
+\frametitle{A4:\ Year-Dynamic Restricted Estimates (Optimal)}
+\addtocounter{framenumber}{-1}
+\begin{table}[htbp]
+  \centering
+  \vspace{-5pt}
+  \addtocounter{table}{-1}
+  \renewcommand{\thetable}{\arabic{table}b}
+  \caption{Year-Dynamic Restricted Estimates (Optimal)}
+  \vspace{5pt}
+  \begin{adjustbox}{totalheight=.7\textheight}
+\input{tables/Year-Dynamic Restricted Estimates (Optimal)}
+  \end{adjustbox}
+  %\label{tab:addlabel}%
+\end{table}%
+\hyperlink{ysreo}{\beamerskipbutton{Year-Static Restricted Estimates (Optimal)}}
+\end{frame}
+
+\begin{frame}[label=ydums]
+\frametitle{A4:\ Year-Dynamic Unrestricted Missing (Suboptimal)}
+\begin{table}[htbp]
+  \centering
+  \renewcommand{\thetable}{\arabic{table}a}
+  \caption{Year-Dynamic Unrestricted Missing (Suboptimal)}
+  \vspace{5pt}
+  \begin{adjustbox}{totalheight=.7\textheight}
+\input{tables/Year-Dynamic Unrestricted Missing (Suboptimal)}
+  \end{adjustbox}
+  %\label{tab:addlabel}%
+\end{table}%
+\hyperlink{ydues}{\beamerskipbutton{Year-Dynamic Unrestricted Estimates (Suboptimal)}}
+\end{frame}
+
+\begin{frame}[label=ydumo]
+\frametitle{A4:\ Year-Dynamic Unrestricted Missing (Optimal)}
+\addtocounter{framenumber}{-1}
+\begin{table}[htbp]
+  \centering
+  \addtocounter{table}{-1}
+  \renewcommand{\thetable}{\arabic{table}b}
+  \caption{Year-Dynamic Unrestricted Missing (Optimal)}
+  \vspace{5pt}
+  \begin{adjustbox}{totalheight=.7\textheight}
+\input{tables/Year-Dynamic Unrestricted Missing (Optimal)}
+  \end{adjustbox}
+  %\label{tab:addlabel}%
+\end{table}%
+\hyperlink{ydueo}{\beamerskipbutton{Year-Dynamic Unrestricted Estimates (Optimal)}}
+\end{frame}
+
+\begin{frame}[label=ydrms]
+\frametitle{A4:\ Year-Dynamic Restricted Missing (Suboptimal)}
+\begin{table}[htbp]
+  \centering
+  \renewcommand{\thetable}{\arabic{table}a}
+  \caption{Year-Dynamic Restricted Missing (Suboptimal)}
+  \vspace{5pt}
+  \begin{adjustbox}{totalheight=.7\textheight}
+\input{tables/Year-Dynamic Restricted Missing (Suboptimal)}
+  \end{adjustbox}
+  %\label{tab:addlabel}%
+\end{table}%
+\hyperlink{ysres}{\beamerskipbutton{Year-Static Restricted Estimates (Suboptimal)}}
+\end{frame}
+
+\begin{frame}[label=ydrmo]
+\frametitle{A4:\ Year-Dynamic Restricted Missing (Optimal)}
+\addtocounter{framenumber}{-1}
+\begin{table}[htbp]
+  \centering
+  \addtocounter{table}{-1}
+  \renewcommand{\thetable}{\arabic{table}b}
+  \caption{Year-Dynamic Restricted Missing (Optimal)}
+  \vspace{5pt}
+  \begin{adjustbox}{totalheight=.7\textheight}
+\input{tables/Year-Dynamic Restricted Missing (Optimal)}
+  \end{adjustbox}
+  %\label{tab:addlabel}%
+\end{table}%
+\hyperlink{ysreo}{\beamerskipbutton{Year-Static Restricted Estimates (Optimal)}}
+\end{frame}
+
+\begin{frame}[label=ymues]
+\frametitle{A4:\ Year-Myopic Unrestricted Estimates (Suboptimal)}
+\begin{table}[htbp]
+  \centering
+  \renewcommand{\thetable}{\arabic{table}a}
+  \caption{Year-Myopic Unrestricted Estimates (Suboptimal)}
+  \vspace{5pt}
+  \begin{adjustbox}{totalheight=.7\textheight}
+\input{tables/Year-Myopic Unrestricted Estimates (Suboptimal)}
+  \end{adjustbox}
+  %\label{tab:addlabel}%
+\end{table}%
+\hyperlink{ydues}{\beamerskipbutton{Year-Dynamic Unrestricted Estimates (Suboptimal)}}
+\end{frame}
+
+\begin{frame}[label=ymueo]
+\frametitle{A4:\ Year-Myopic Unrestricted Estimates (Optimal)}
+\addtocounter{framenumber}{-1}
+\begin{table}[htbp]
+  \centering
+  \addtocounter{table}{-1}
+  \renewcommand{\thetable}{\arabic{table}b}
+  \caption{Year-Myopic Unrestricted Estimates (Optimal)}
+  \vspace{5pt}
+  \begin{adjustbox}{totalheight=.7\textheight}
+\input{tables/Year-Myopic Unrestricted Estimates (Optimal)}
+  \end{adjustbox}
+  %\label{tab:addlabel}%
+\end{table}%
+\hyperlink{ydueo}{\beamerskipbutton{Year-Dynamic Unrestricted Estimates (Optimal)}}
+\end{frame}
+
+\begin{frame}[label=ymres]
+\frametitle{A4:\ Year-Myopic Restricted Estimates (Suboptimal)}
+\begin{table}[htbp]
+  \centering
+  \renewcommand{\thetable}{\arabic{table}a}
+  \caption{Year-Myopic Restricted Estimates (Suboptimal)}
+  \vspace{5pt}
+  \begin{adjustbox}{totalheight=.7\textheight}
+\input{tables/Year-Myopic Restricted Estimates (Suboptimal)}
+  \end{adjustbox}
+  %\label{tab:addlabel}%
+\end{table}%
+\hyperlink{ysres}{\beamerskipbutton{Year-Static Restricted Estimates (Suboptimal)}}
+\end{frame}
+
+\begin{frame}[label=ymreo]
+\frametitle{A4:\ Year-Myopic Restricted Estimates (Optimal)}
+\addtocounter{framenumber}{-1}
+\begin{table}[htbp]
+  \centering
+  \addtocounter{table}{-1}
+  \renewcommand{\thetable}{\arabic{table}b}
+  \caption{Year-Myopic Restricted Estimates (Optimal)}
+  \vspace{5pt}
+  \begin{adjustbox}{totalheight=.7\textheight}
+\input{tables/Year-Myopic Restricted Estimates (Optimal)}
+  \end{adjustbox}
+  %\label{tab:addlabel}%
+\end{table}%
+\hyperlink{ysreo}{\beamerskipbutton{Year-Static Restricted Estimates (Optimal)}}
+\end{frame}
+
+\begin{frame}[label=ymums]
+\frametitle{A4:\ Year-Myopic Unrestricted Missing (Suboptimal)}
+\begin{table}[htbp]
+  \centering
+  \renewcommand{\thetable}{\arabic{table}a}
+  \caption{Year-Myopic Unrestricted Missing (Suboptimal)}
+  \vspace{5pt}
+  \begin{adjustbox}{totalheight=.7\textheight}
+\input{tables/Year-Myopic Unrestricted Missing (Suboptimal)}
+  \end{adjustbox}
+  %\label{tab:addlabel}%
+\end{table}%
+\hyperlink{ydues}{\beamerskipbutton{Year-Dynamic Unrestricted Estimates (Suboptimal)}}
+\end{frame}
+
+\begin{frame}[label=ymumo]
+\frametitle{A4:\ Year-Myopic Unrestricted Missing (Optimal)}
+\addtocounter{framenumber}{-1}
+\begin{table}[htbp]
+  \centering
+  \addtocounter{table}{-1}
+  \renewcommand{\thetable}{\arabic{table}b}
+  \caption{Year-Myopic Unrestricted Missing (Optimal)}
+  \vspace{5pt}
+  \begin{adjustbox}{totalheight=.7\textheight}
+\input{tables/Year-Myopic Unrestricted Missing (Optimal)}
+  \end{adjustbox}
+  %\label{tab:addlabel}%
+\end{table}%
+\hyperlink{ydueo}{\beamerskipbutton{Year-Dynamic Unrestricted Estimates (Optimal)}}
+\end{frame}
+
+\begin{frame}[label=ymrms]
+\frametitle{A4:\ Year-Myopic Restricted Missing (Suboptimal)}
+\begin{table}[htbp]
+  \centering
+  \renewcommand{\thetable}{\arabic{table}a}
+  \caption{Year-Myopic Restricted Missing (Suboptimal)}
+  \vspace{5pt}
+  \begin{adjustbox}{totalheight=.7\textheight}
+\input{tables/Year-Myopic Restricted Missing (Suboptimal)}
+  \end{adjustbox}
+  %\label{tab:addlabel}%
+\end{table}%
+\hyperlink{ysres}{\beamerskipbutton{Year-Static Restricted Estimates (Suboptimal)}}
+\end{frame}
+
+\begin{frame}[label=ymrmo]
+\frametitle{A4:\ Year-Myopic Restricted Missing (Optimal)}
+\addtocounter{framenumber}{-1}
+\begin{table}[htbp]
+  \centering
+  \addtocounter{table}{-1}
+  \renewcommand{\thetable}{\arabic{table}b}
+  \caption{Year-Myopic Restricted Missing (Optimal)}
+  \vspace{5pt}
+  \begin{adjustbox}{totalheight=.7\textheight}
+\input{tables/Year-Myopic Restricted Missing (Optimal)}
+  \end{adjustbox}
+  %\label{tab:addlabel}%
+\end{table}%
+\hyperlink{ysreo}{\beamerskipbutton{Year-Static Restricted Estimates (Optimal)}}
+\end{frame}
+
+\begin{frame}[label=wsss]
+\frametitle{A4:\ Waitlist Summary Statistics (Suboptimal)}
+\begin{table}[htbp]
+  \centering
+  \vspace{-5pt}
+  \renewcommand{\thetable}{\arabic{table}a}
+  \caption{Waitlist Summary Statistics (Suboptimal)}
+  \vspace{5pt}
+  \begin{adjustbox}{totalheight=.7\textheight}
+\input{tables/Waitlist Summary Statistics (Suboptimal)}
+  \end{adjustbox}
+  %\label{tab:addlabel}%
+\end{table}%
+\hyperlink{wdues}{\beamerskipbutton{Waitlist-Dynamic Unrestricted Estimates (Suboptimal)}}
+\end{frame}
+
+\begin{frame}[label=wsso]
+\frametitle{A4:\ Waitlist Summary Statistics (Optimal)}
+\addtocounter{framenumber}{-1}
+\begin{table}[htbp]
+  \centering
+  \vspace{-5pt}
+  \addtocounter{table}{-1}
+  \renewcommand{\thetable}{\arabic{table}b}
+  \caption{Waitlist Summary Statistics (Optimal)}
+  \vspace{5pt}
+  \begin{adjustbox}{totalheight=.7\textheight}
+\input{tables/Waitlist Summary Statistics (Optimal)}
+  \end{adjustbox}
+  %\label{tab:addlabel}%
+\end{table}%
+\hyperlink{wdueo}{\beamerskipbutton{Waitlist-Dynamic Unrestricted Estimates (Optimal)}}
+\end{frame}
+
+\begin{frame}[label=wcms]
+\frametitle{A4:\ Waitlist Correlation Matrix (Suboptimal)}
+\begin{table}[htbp]
+  \centering
+  \renewcommand{\thetable}{\arabic{table}a}
+  \caption{Waitlist Correlation Matrix (Suboptimal)}
+  \vspace{-5pt}
+  \begin{adjustbox}{width=1\textwidth}
+\input{tables/Waitlist Correlation Matrix (Suboptimal)}
+  \end{adjustbox}
+  %\label{tab:addlabel}%
+\end{table}%
+\hyperlink{wdues}{\beamerskipbutton{Waitlist-Dynamic Unrestricted Estimates (Suboptimal)}}
+\end{frame}
+
+\begin{frame}[label=wcmo]
+\frametitle{A4:\ Waitlist Correlation Matrix (Optimal)}
+\addtocounter{framenumber}{-1}
+\begin{table}[htbp]
+  \centering
+  \addtocounter{table}{-1}
+  \renewcommand{\thetable}{\arabic{table}b}
+  \caption{Waitlist Correlation Matrix (Optimal)}
+  \vspace{-5pt}
+  \begin{adjustbox}{width=1\textwidth}
+\input{tables/Waitlist Correlation Matrix (Optimal)}
+  \end{adjustbox}
+  %\label{tab:addlabel}%
+\end{table}%
+\hyperlink{wdueo}{\beamerskipbutton{Waitlist-Dynamic Unrestricted Estimates (Optimal)}}
+\end{frame}
+
+\begin{frame}[label=fwdues]
+\frametitle{A4: Full Waitlist-Dynamic Unrestricted Estimates (Suboptimal)}
+\begin{table}[htbp]
+  \centering
+  \renewcommand{\thetable}{\arabic{table}a}
+  \caption{Waitlist-Dynamic Unrestricted Estimates (Suboptimal)}
+  \vspace{5pt}
+  \begin{adjustbox}{totalheight=.7\textheight}
+\input{tables/Waitlist-Dynamic Unrestricted Estimates (Suboptimal)}
+  \end{adjustbox}
+  %\label{tab:addlabel}%
+\end{table}%
+\hyperlink{wdues}{\beamerskipbutton{Waitlist-Dynamic Unrestricted Estimates (Suboptimal)}}
+\end{frame}
+
+\begin{frame}[label=fwdueo]
+\frametitle{A4:\ Full Waitlist-Dynamic Unrestricted Estimates (Optimal)}
+\addtocounter{framenumber}{-1}
+\begin{table}[htbp]
+  \centering
+  \addtocounter{table}{-1}
+  \renewcommand{\thetable}{\arabic{table}b}
+  \caption{Waitlist-Dynamic Unrestricted Estimates (Optimal)}
+  \vspace{5pt}
+  \begin{adjustbox}{totalheight=.7\textheight}
+\input{tables/Waitlist-Dynamic Unrestricted Estimates (Optimal)}
+  \end{adjustbox}
+  %\label{tab:addlabel}%
+\end{table}%
+\hyperlink{wdueo}{\beamerskipbutton{Waitlist-Dynamic Unrestricted Estimates (Optimal)}}
+\end{frame}
+
+\begin{frame}[label=whres]
+\frametitle{A4:\ Waitlist-Hybrid Restricted Estimates (Suboptimal)}
+\begin{table}[htbp]
+  \centering
+  \renewcommand{\thetable}{\arabic{table}a}
+  \caption{Waitlist-Hybrid Restricted Estimates (Suboptimal)}
+  \vspace{5pt}
+  \begin{adjustbox}{totalheight=.7\textheight}
+\input{tables/Waitlist-Hybrid Restricted Estimates (Suboptimal) Presentation}
+  \end{adjustbox}
+  %\label{tab:addlabel}%
+\end{table}%
+\hyperlink{wdues}{\beamerskipbutton{Waitlist-Dynamic Unrestricted Estimates (Suboptimal)}}
+\end{frame}
+
+\begin{frame}[label=whreo]
+\frametitle{A4:\ Waitlist-Hybrid Restricted Estimates (Optimal)}
+\addtocounter{framenumber}{-1}
+\begin{table}[htbp]
+  \centering
+  \addtocounter{table}{-1}
+  \renewcommand{\thetable}{\arabic{table}b}
+  \caption{Waitlist-Hybrid Restricted Estimates (Optimal)}
+  \vspace{5pt}
+  \begin{adjustbox}{totalheight=.7\textheight}
+\input{tables/Waitlist-Hybrid Restricted Estimates (Optimal) Presentation}
+  \end{adjustbox}
+  %\label{tab:addlabel}%
+\end{table}%
+\hyperlink{wdueo}{\beamerskipbutton{Waitlist-Dynamic Unrestricted Estimates (Optimal)}}
+\end{frame}
+
+\begin{frame}[label=fwhres]
+\frametitle{A4:\ Full Waitlist-Hybrid Restricted Estimates (Suboptimal)}
+\begin{table}[htbp]
+  \centering
+  \vspace{-5pt}
+  \renewcommand{\thetable}{\arabic{table}a}
+  \caption{Waitlist-Hybrid Restricted Estimates (Suboptimal)}
+  \vspace{5pt}
+  \begin{adjustbox}{totalheight=.7\textheight}
+\input{tables/Waitlist-Hybrid Restricted Estimates (Suboptimal)}
+  \end{adjustbox}
+  %\label{tab:addlabel}%
+\end{table}%
+\hyperlink{wdues}{\beamerskipbutton{Waitlist-Dynamic Unrestricted Estimates (Suboptimal)}}
+\end{frame}
+
+\begin{frame}[label=fwhreo]
+\frametitle{A4:\ Full Waitlist-Hybrid Restricted Estimates (Optimal)}
+\addtocounter{framenumber}{-1}
+\begin{table}[htbp]
+  \centering
+  \vspace{-5pt}
+  \addtocounter{table}{-1}
+  \renewcommand{\thetable}{\arabic{table}b}
+  \caption{Waitlist-Hybrid Restricted Estimates (Optimal)}
+  \vspace{5pt}
+  \begin{adjustbox}{totalheight=.7\textheight}
+\input{tables/Waitlist-Hybrid Restricted Estimates (Optimal)}
+  \end{adjustbox}
+  %\label{tab:addlabel}%
+\end{table}%
+\hyperlink{wdueo}{\beamerskipbutton{Waitlist-Dynamic Unrestricted Estimates (Optimal)}}
+\end{frame}
+
+\begin{frame}[label=whues]
+\frametitle{A4:\ Waitlist-Hybrid Unrestricted Estimates (Suboptimal)}
+\begin{table}[htbp]
+  \centering
+  \renewcommand{\thetable}{\arabic{table}a}
+  \caption{Waitlist-Hybrid Unrestricted Estimates (Suboptimal)}
+  \vspace{5pt}
+  \begin{adjustbox}{totalheight=.7\textheight}
+\input{tables/Waitlist-Hybrid Unrestricted Estimates (Suboptimal)}
+  \end{adjustbox}
+  %\label{tab:addlabel}%
+\end{table}%
+\hyperlink{wdues}{\beamerskipbutton{Waitlist-Dynamic Unrestricted Estimates (Suboptimal)}}
+\end{frame}
+
+\begin{frame}[label=whueo]
+\frametitle{A4:\ Waitlist-Hybrid Unrestricted Estimates (Optimal)}
+\addtocounter{framenumber}{-1}
+\begin{table}[htbp]
+  \centering
+  \addtocounter{table}{-1}
+  \renewcommand{\thetable}{\arabic{table}b}
+  \caption{Waitlist-Hybrid Unrestricted Estimates (Optimal)}
+  \vspace{5pt}
+  \begin{adjustbox}{totalheight=.7\textheight}
+\input{tables/Waitlist-Hybrid Unrestricted Estimates (Optimal)}
+  \end{adjustbox}
+  %\label{tab:addlabel}%
+\end{table}%
+\hyperlink{wdueo}{\beamerskipbutton{Waitlist-Dynamic Unrestricted Estimates (Optimal)}}
+\end{frame}
+
+\begin{frame}[label=wdres]
+\frametitle{A4:\ Waitlist-Dynamic Restricted Estimates (Suboptimal)}
+\begin{table}[htbp]
+  \centering
+  \renewcommand{\thetable}{\arabic{table}a}
+  \caption{Waitlist-Dynamic Restricted Estimates (Suboptimal)}
+  \vspace{5pt}
+  \begin{adjustbox}{totalheight=.7\textheight}
+\input{tables/Waitlist-Dynamic Restricted Estimates (Suboptimal)}
+  \end{adjustbox}
+  %\label{tab:addlabel}%
+\end{table}%
+\hyperlink{wdues}{\beamerskipbutton{Waitlist-Dynamic Unrestricted Estimates (Optimal)}}
+\end{frame}
+
+\begin{frame}[label=wdreo]
+\frametitle{A4:\ Waitlist-Dynamic Restricted Estimates (Optimal)}
+\addtocounter{framenumber}{-1}
+\begin{table}[htbp]
+  \centering
+  \addtocounter{table}{-1}
+  \renewcommand{\thetable}{\arabic{table}b}
+  \caption{Waitlist-Dynamic Restricted Estimates (Optimal)}
+  \vspace{5pt}
+  \begin{adjustbox}{totalheight=.7\textheight}
+\input{tables/Waitlist-Dynamic Restricted Estimates (Optimal)}
+  \end{adjustbox}
+  %\label{tab:addlabel}%
+\end{table}%
+\hyperlink{wdueo}{\beamerskipbutton{Waitlist-Dynamic Unrestricted Estimates (Optimal)}}
+\end{frame}
+
+\begin{frame}[label=wdums]
+\frametitle{A4:\ Waitlist-Dynamic Unrestricted Missing (Suboptimal)}
+\begin{table}[htbp]
+  \centering
+  \renewcommand{\thetable}{\arabic{table}a}
+  \caption{Waitlist-Dynamic Unrestricted Missing (Suboptimal)}
+  \vspace{5pt}
+  \begin{adjustbox}{totalheight=.7\textheight}
+\input{tables/Waitlist-Dynamic Unrestricted Missing (Suboptimal)}
+  \end{adjustbox}
+  %\label{tab:addlabel}%
+\end{table}%
+\hyperlink{wdues}{\beamerskipbutton{Waitlist-Dynamic Unrestricted Estimates (Suboptimal)}}
+\end{frame}
+
+\begin{frame}[label=wdumo]
+\frametitle{A4:\ Waitlist-Dynamic Unrestricted Missing (Optimal)}
+\addtocounter{framenumber}{-1}
+\begin{table}[htbp]
+  \centering
+  \addtocounter{table}{-1}
+  \renewcommand{\thetable}{\arabic{table}b}
+  \caption{Waitlist-Dynamic Unrestricted Missing (Optimal)}
+  \vspace{5pt}
+  \begin{adjustbox}{totalheight=.7\textheight}
+\input{tables/Waitlist-Dynamic Unrestricted Missing (Optimal)}
+  \end{adjustbox}
+  %\label{tab:addlabel}%
+\end{table}%
+\hyperlink{wdueo}{\beamerskipbutton{Waitlist-Dynamic Unrestricted Estimates (Optimal)}}
+\end{frame}
+
+\begin{frame}[label=wdrms]
+\frametitle{A4:\ Waitlist-Dynamic Restricted Missing (Suboptimal)}
+\begin{table}[htbp]
+  \centering
+  \renewcommand{\thetable}{\arabic{table}a}
+  \caption{Waitlist-Dynamic Restricted Missing (Suboptimal)}
+  \vspace{5pt}
+  \begin{adjustbox}{totalheight=.7\textheight}
+\input{tables/Waitlist-Dynamic Restricted Missing (Suboptimal)}
+  \end{adjustbox}
+  %\label{tab:addlabel}%
+\end{table}%
+\hyperlink{wdues}{\beamerskipbutton{Waitlist-Dynamic Unrestricted Estimates (Suboptimal)}}
+\end{frame}
+
+\begin{frame}[label=wdrmo]
+\frametitle{A4:\ Waitlist-Dynamic Restricted Missing (Optimal)}
+\addtocounter{framenumber}{-1}
+\begin{table}[htbp]
+  \centering
+  \addtocounter{table}{-1}
+  \renewcommand{\thetable}{\arabic{table}b}
+  \caption{Waitlist-Dynamic Restricted Missing (Optimal)}
+  \vspace{5pt}
+  \begin{adjustbox}{totalheight=.7\textheight}
+\input{tables/Waitlist-Dynamic Restricted Missing (Optimal)}
+  \end{adjustbox}
+  %\label{tab:addlabel}%
+\end{table}%
+\hyperlink{wdueo}{\beamerskipbutton{Waitlist-Dynamic Unrestricted Estimates (Optimal)}}
+\end{frame}
+
+\begin{frame}[label=fdgs]
+\frametitle{A4:\ Full Deviation Gains (Suboptimal)}
+\begin{figure}
+\centering
+\includegraphics[totalheight=.8\textheight]{figures/simulated_9_gains_cdf_NM_opt0}
+\vspace{-7.5pt}
+\end{figure}
+\hyperlink{dgs}{\beamerskipbutton{Highlighted Deviation Gains (Suboptimal)}}
+\end{frame}
+
+\begin{frame}[label=fdgo]
+\frametitle{A4:\ Full Deviation Gains (Suboptimal)}
+\addtocounter{framenumber}{-1}
+\begin{figure}
+\centering
+\includegraphics[totalheight=.8\textheight]{figures/simulated_9_gains_cdf_NM_opt1}
+\vspace{-7.5pt}
+\end{figure}
+\hyperlink{dgo}{\beamerskipbutton{Highlighted Deviation Gains (Optimal)}}
+\end{frame}
+
+\begin{frame}[label=dgms]
+\frametitle{A4:\ Deviation Gains Missing (Suboptimal)}
+\begin{figure}
+\centering
+\includegraphics[totalheight=.8\textheight]{figures/simulated_9_gains_cdf_MH_opt0}
+\vspace{-7.5pt}
+\end{figure}
+\hyperlink{dgs}{\beamerskipbutton{Deviation Gains (Suboptimal)}}
+\end{frame}
+
+\begin{frame}[label=dgmo]
+\frametitle{A4:\ Deviation Gains Missing (Optimal)}
+\addtocounter{framenumber}{-1}
+\begin{figure}
+\centering
+\includegraphics[totalheight=.8\textheight]{figures/simulated_9_gains_cdf_MH_opt1}
+\vspace{-7.5pt}
+\end{figure}
+\hyperlink{dgo}{\beamerskipbutton{Deviation Gains (Optimal)}}
+\end{frame}
+
+\begin{frame}[label=fwdgs]
+\frametitle{A4:\ Full Waitlist Deviation Gains (Suboptimal)}
+\begin{figure}
+\centering
+\includegraphics[totalheight=.8\textheight]{figures/simulated_9_wait_gains_cdf_NM_opt0_mat}
+\vspace{-7.5pt}
+\end{figure}
+\hyperlink{wdgs}{\beamerskipbutton{Highlighted Waitlist Deviation Gains (Suboptimal)}}
+\end{frame}
+
+\begin{frame}[label=fwdgo]
+\frametitle{A4:\ Full Waitlist Deviation Gains (Optimal)}
+\addtocounter{framenumber}{-1}
+\begin{figure}
+\centering
+\includegraphics[totalheight=.8\textheight]{figures/simulated_9_wait_gains_cdf_NM_opt1_mat}
+\vspace{-7.5pt}
+\end{figure}
+\hyperlink{wdgo}{\beamerskipbutton{Highlighted Waitlist Deviation Gains (Optimal)}}
+\end{frame}
+
+\begin{frame}[label=wdgms]
+\frametitle{A4:\ Waitlist Deviation Gains Missing (Suboptimal)}
+\begin{figure}
+\centering
+\includegraphics[totalheight=.8\textheight]{figures/simulated_9_wait_gains_cdf_MH_opt0_mat}
+\vspace{-7.5pt}
+\end{figure}
+\hyperlink{wdgs}{\beamerskipbutton{Waitlist Deviation Gains (Suboptimal)}}
+\end{frame}
+
+\begin{frame}[label=wdgmo]
+\frametitle{A4:\ Waitlist Deviation Gains Missing (Optimal)}
+\addtocounter{framenumber}{-1}
+\begin{figure}
+\centering
+\includegraphics[totalheight=.8\textheight]{figures/simulated_9_wait_gains_cdf_MH_opt1_mat}
+\vspace{-7.5pt}
+\end{figure}
+\hyperlink{wdgo}{\beamerskipbutton{Waitlist Deviation Gains (Optimal)}}
+\end{frame}
+
+\addtocounter{framenumber}{1}
+\begin{frame}[allowframebreaks,noframenumbering]{References}
+\renewcommand{\bibfont}{\tiny}
+\setlength{\bibitemsep}{-1pt}
+\printbibliography
+\end{frame}
+
+\backupend
+\end{document}
