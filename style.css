@@ -208,7 +208,7 @@ a:hover {
 
 /* ─── JMP highlight ─── */
 .jmp {
-    background: #5F0EB; /* Georgetown Pantone 7527,  50% tint */
+    background: #D6D2C4; /* Georgetown Pantone 7527,  50% tint */
     border: 1px solid var(--border);
     padding: 1.15rem 1.25rem;
     margin-bottom: 1.5rem;
