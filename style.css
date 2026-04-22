@@ -6,8 +6,8 @@
     --link-hover: #003DA5;
     --text-color: #1A1A1A;        
     --text-light: #1A1A1A;        
-    --text-muted: #BBBCBC;        /* Georgetown Cool Gray 4 */
-    --border: #BBBCBC;            
+    --text-muted: #63666A;        /* Georgetown Cool Gray 10 */
+    --border: #BBBCBC;            /* Georgetown Cool Gray 4 */
     --bg: #FCFCFA;                /* Georgetown Pantone 7527,  10% tint */
     --sidebar-width: 220px;
     --content-max: 620px;
@@ -79,7 +79,7 @@ a:hover {
 
 .sidebar .contact {
     font-size: 0.9rem;
-    color: var(--text-light);
+    color: var(--text-muted);
     line-height: 1.65;
     margin-bottom: 0;
 }
