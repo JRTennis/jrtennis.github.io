@@ -7,7 +7,7 @@
     --text-color: #1a1a1a;
     --text-light: #4a4a4a;
     --text-muted: #666666;
-    --bg: #fafaf8;                /* Warm off-white background */
+    --bg: #CFCFA;                /* Warm off-white background */
     --border: #d8d5ce;
     --sidebar-width: 220px;
     --content-max: 620px;
@@ -208,7 +208,7 @@ a:hover {
 
 /* ─── JMP highlight ─── */
 .jmp {
-    background: #D6D2C4; /* Georgetown Pantone 7527,  50% tint */
+    background: #5F0EB; /* Georgetown Pantone 7527,  50% tint */
     border: 1px solid var(--border);
     padding: 1.15rem 1.25rem;
     margin-bottom: 1.5rem;
