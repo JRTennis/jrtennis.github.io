@@ -206,38 +206,6 @@ a:hover {
     margin-right: 0;
 }
 
-/* ─── JMP highlight ─── */
-.jmp {
-    background: #F5F0EB; /* Georgetown Pantone 7527, 50% tint */
-    border: 1px solid var(--border);
-    padding: 1.15rem 1.25rem;
-    margin-bottom: 1.5rem;
-}
-
-.jmp .paper-title {
-    font-size: 1rem;
-    line-height: 1.4;
-}
-
-.jmp .abstract {
-    font-size: 0.975rem;
-    color: var(--text-light);
-    margin: 0.55rem 0 0.45rem 0;
-    line-height: 1.68;
-}
-
-.jmp .links {
-    font-size: 0.92rem;
-}
-
-.jmp .links a {
-    margin-right: 0.8rem;
-}
-
-.jmp .links a:last-child {
-    margin-right: 0;
-}
-
 /* ─── Footer ─── */
 .footer {
     font-size: 0.85rem;
