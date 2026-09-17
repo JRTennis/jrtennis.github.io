@@ -30,6 +30,14 @@
     <meta name="theme-color" content="#003DA5">
 
     <link rel="stylesheet" href="style.css">
+
+    <!-- Collapsible abstracts. Hidden only when JavaScript is available, so
+         the text still shows if scripts are blocked. Move to style.css if preferred. -->
+    <style>
+        .js .abstract { display: none; }
+        .js .abstract.is-open { display: block; }
+    </style>
+    <script>document.documentElement.classList.add('js');</script>
 </head>
 <body>
 
@@ -64,18 +72,19 @@
         <h2>Job Market Paper</h2>
         <div class="paper">
             <div class="paper-title">"Optimal Dynamic Selection Under Costly Evaluation: Evidence from Graduate Admissions"</div>
-            <p class="abstract">
+            <div class="links">
+                <a href="#jmp-abstract" class="abstract-toggle" aria-expanded="false" aria-controls="jmp-abstract">Abstract</a>
+                <a href="https://jeremyarosen.com/papers/grad_admissions_paper.pdf">Paper</a>
+                <a href="https://jeremyarosen.com/papers/grad_admissions_online_appendix.pdf">Online Appendix</a>
+                <a href="https://jeremyarosen.com/papers/grad_admissions_presentation.pdf">Slides</a>
+            </div>
+            <p class="abstract" id="jmp-abstract">
                 This paper uses graduate admissions to study dynamic selection under costly evaluation.
                 With a privacy-protecting synthetic data protocol, I relate acceptance to success measures based on job placements.
                 I estimate structural models of an admissions committee's decision problem capturing first-round filtering and matriculation, test whether observed decisions are optimal given the number of application files read, and quantify gains from deviating to the models' chosen sets.
                 The committee's decisions align with many applicants' estimated success probabilities, but some applicant characteristics may be misweighted.
                 Reweighting these characteristics increases the admitted cohort's average success probability without reading more files.
             </p>
-            <div class="links">
-                <a href="https://jeremyarosen.com/papers/grad_admissions_paper.pdf">Paper</a>
-                <a href="https://jeremyarosen.com/papers/grad_admissions_online_appendix.pdf">Online Appendix</a>
-                <a href="https://jeremyarosen.com/papers/grad_admissions_presentation.pdf">Slides</a>
-            </div>
         </div>
 
         <!-- Publications -->
@@ -85,7 +94,8 @@
             <div class="paper-title"><a href="https://www.journals.uchicago.edu/doi/10.1086/732529">"Disequilibrium Play in Tennis"</a></div>
             <div class="coauthors">with <a href="https://sites.google.com/view/axel-anderson">Axel Anderson</a>, <a href="https://editorialexpress.com/jrust/">John Rust</a>, and <a href="https://kpjwong.weebly.com/">Kin-ping Wong</a></div>
             <div class="venue">Journal of Political Economy, 133(1), 2025, 190–251</div>
-            <p class="abstract">
+            <div class="links"><a href="#tennis-abstract" class="abstract-toggle" aria-expanded="false" aria-controls="tennis-abstract">Abstract</a> <a href="https://jeremyarosen.com/papers/disequilibrium_play_in_tennis_full.pdf">Paper</a> <a href="https://jeremyarosen.com/papers/jeremyr_slides.pdf">Slides</a></div>
+            <p class="abstract" id="tennis-abstract">
                 Do the world’s best tennis pros play Nash equilibrium mixed strategies? We answer this
 question using data on serve direction choices (to the receiver’s left, right or body) from
 the Match Charting Project. Using a new approach, we test and reject a key implication
@@ -94,14 +104,14 @@ identical for all possible serve strategies. We calculate best-response serve st
 dynamic programming and show that for most elite pro servers, the DP strategy significantly
 increases their win probability relative to the mixed strategies they actually use.
             </p>
-            <div class="links"><a href="https://jeremyarosen.com/papers/disequilibrium_play_in_tennis_full.pdf">Paper</a> <a href="https://jeremyarosen.com/papers/jeremyr_slides.pdf">Slides</a></div>
         </div>
 
         <div class="paper">
             <div class="paper-title"><a href="https://onlinelibrary.wiley.com/doi/abs/10.1111/coep.12454">"Data-Driven Drafting: Applying Econometrics to Employ Quarterbacks"</a></div>
             <div class="coauthors">with <a href="https://www.ramapo.edu/asb/faculty/alexandre-olbrecht/">Alexandre Olbrecht</a></div>
             <div class="venue">Contemporary Economic Policy, 38(2), 2020, 313–326</div>
-            <p class="abstract">
+            <div class="links"><a href="#drafting-abstract" class="abstract-toggle" aria-expanded="false" aria-controls="drafting-abstract">Abstract</a> <a href="https://jeremyarosen.com/papers/rosen_olbrecht_2019_full.pdf">Paper</a></div>
+            <p class="abstract" id="drafting-abstract">
                 We show that firms can employ data-driven methods to improve their hiring
 decisions. Specifically, we use data available to National Football League (NFL) teams
 prior to the NFL draft to estimate econometric models that predict the future performance
@@ -110,7 +120,6 @@ improve the draft's efficiency and help it accomplish its mission to promote com
 balance. Furthermore, data-driven methods such as ours can help firms avoid biases
 against employee characteristics that do not affect future job performance.
             </p>
-            <div class="links"><a href="https://jeremyarosen.com/papers/rosen_olbrecht_2019_full.pdf">Paper</a></div>
         </div>
 
         <!-- Working Papers -->
@@ -119,14 +128,14 @@ against employee characteristics that do not affect future job performance.
         <div class="paper">
             <div class="paper-title">"Resource Optimization Under Asymmetric Spillovers in the NFL"</div>
             <div class="coauthors">with <a href="https://gufaculty360.georgetown.edu/s/contact/0031Q00002aaInaQAE/satyam-anand">Satyam Anand</a></div>
-            <p class="abstract">
+            <div class="links"><a href="#spillovers-abstract" class="abstract-toggle" aria-expanded="false" aria-controls="spillovers-abstract">Abstract</a> <a href="https://jeremyarosen.com/papers/asymmetric_spillovers_paper.pdf">Paper</a> <a href="https://jeremyarosen.com/papers/asymmetric_spillovers_presentation.pdf">Slides</a></div>
+            <p class="abstract" id="spillovers-abstract">
                 This paper studies resource optimization under asymmetric spillovers, which occur when one
 position’s unobserved true quality disproportionately affects other positions’ observed performances. Because the NFL has vast public data, we use it as a laboratory for our study. Specifically, we estimate a production function equilibrium model of team performance by mapping
 salary cap spending into expected wins. To account for asymmetric spillovers between quarterbacks and their teammates, we use game-level variation to identify quarterbacks’ marginal
 productivity, calibrate the model, and calculate optimal positional allocations. We find that
 most positions were paid near their model-implied optima with a few significant deviations.
             </p>
-            <div class="links"><a href="https://jeremyarosen.com/papers/asymmetric_spillovers_paper.pdf">Paper</a> <a href="https://jeremyarosen.com/papers/asymmetric_spillovers_presentation.pdf">Slides</a></div>
         </div>
 
         <!-- Works in Progress -->
@@ -135,7 +144,8 @@ most positions were paid near their model-implied optima with a few significant 
         <div class="paper">
             <div class="paper-title">"Estimating Dynamic Dependence in Sequential Contests: Evidence from Professional Tennis"</div>
             <div class="coauthors">with <a href="https://sites.google.com/view/nicolaslegrand/home?authuser=0">Nicolas Legrand</a></div>
-            <p class="abstract">
+            <div class="links"><a href="#hot-hand-abstract" class="abstract-toggle" aria-expanded="false" aria-controls="hot-hand-abstract">Abstract</a> <a href="https://jeremyarosen.com/papers/hot_hand_presentation.pdf">Slides</a></div>
+            <p class="abstract" id="hot-hand-abstract">
                 Do outcomes in sequential contests exhibit dynamic dependence? We study this question using point-level data from modern professional tennis and assess how well Klaassen and Magnus’s (2001) iterated feasible generalized least squares (FGLS) estimator performs on dynamic panels. Using data from 1,336 men and women’s clay, grass, and hard-court matches
 from 2014 to 2017, we reject independence and identical distribution at the 1% level. However, our estimated hot hand effect is smaller than KM’s and insignificant for men, and the
 receiver’s estimated advantage on important points is also smaller. We then compare FGLS to
@@ -144,7 +154,6 @@ and show that FGLS estimates are comparable to BCFE and consistently lie between
 and uncorrected FE. Given FGLS’s computational speed and ability to handle predetermined
 and time-invariant covariates, we recommend it for applied work with dynamic panel data.
             </p>
-            <div class="links"><a href="https://jeremyarosen.com/papers/hot_hand_presentation.pdf">Slides</a></div>
         </div>
 
         <div class="paper">
@@ -161,6 +170,19 @@ and time-invariant covariates, we recommend it for applied work with dynamic pan
     </div>
 
 </div>
+
+<script>
+    // "Abstract" links open and close the abstract directly below the link row.
+    document.addEventListener('click', function (e) {
+        var toggle = e.target.closest('.abstract-toggle');
+        if (!toggle) return;
+        e.preventDefault();
+        var abstract = document.getElementById(toggle.getAttribute('aria-controls'));
+        if (!abstract) return;
+        var open = abstract.classList.toggle('is-open');
+        toggle.setAttribute('aria-expanded', open ? 'true' : 'false');
+    });
+</script>
 
 </body>
 </html>
